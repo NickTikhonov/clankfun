@@ -29,11 +29,18 @@ export async function generateMetadata({ params }: {
     ca: data.contract_address
   })
 
+  const title = `Trade ${data.name}`
+  const description = `Trade ${data.name} on clank.fun`
   return {
-    title: `Trade ${data.name}`,
-    description: `Trade ${data.name} on clank.fun`,
+    title,
+    description,
     openGraph: {
       images: [data.img_url ? data.img_url : 'https://clank.fun/og.png'],
+      title,
+      description,
+      url: `https://clank.fun/t/${data.contract_address}`,
+      logo: `https://clank.fun/og.png`,
+      type: 'website'
     }
   }
 }
