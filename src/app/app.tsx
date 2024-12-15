@@ -139,7 +139,7 @@ function ClankfunShill() {
             </div>
           </WithTooltip>
         </a>
-        <a href="https://t.me/clankfunn" target="_blank" rel="noopener noreferrer">
+        <a href="https://t.me/clankfun" target="_blank" rel="noopener noreferrer">
           <WithTooltip text="Join the community">
             <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
               <MessageCircle size={24} />
@@ -985,7 +985,7 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
         <div className="flex flex-col">
           <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal   underline leading-[18px]">Clanker</a>
           <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="text-[#de4efb] text-[15px] font-normal   underline leading-[18px]">Farcaster</a>
-          <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal   underline leading-[18px]">Telegram community</a>
+          <a href="https://t.me/clankfun" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal   underline leading-[18px]">Telegram community</a>
         </div>
       </DialogContent>
     </Dialog>

@@ -10,7 +10,7 @@ export default function Page() {
         <ul className="text-lg">
           <li>Make the best trading UX on Base 🔵</li>
         </ul>
-        <a href="https://t.me/clankfunn" className="mt-20 underline">join the mission</a>
+        <a href="https://t.me/clankfun" className="mt-20 underline">join the mission</a>
       </div>
     </div>
   )
