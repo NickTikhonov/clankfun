@@ -27,7 +27,7 @@ const APIPageSchema = z.object({
 export type APIClanker = z.infer<typeof APIClankerSchema>
 export type APIPage = z.infer<typeof APIPageSchema>
 
-export async function scrapeLatestTimeRestricted(time = 1000 * 40) {
+export async function scrapeLatestTimeRestricted(time = 1000 * 10) {
   const latestClanker = await db.clanker.findFirst({
     orderBy: {
       created_at: 'desc'
