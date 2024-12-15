@@ -6,7 +6,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchBalance, serverFetchCA, serverFetchClankers, serverFetchHotClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -233,7 +233,7 @@ function SearchResults({ query }: { query: string }) {
 export function LatestFeed() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [page, setPage] = useState(1);
+  const [nextCursor, setNextCursor] = useState<number | undefined>(1);
 
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
@@ -241,21 +241,41 @@ export function LatestFeed() {
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
-      const init = await serverFetchClankers();
-      setClankers(init.data);
-      setPage(init.lastPage);
+      const res = await serverFetchLatestClankers();
+      setClankers(res.data);
+      setNextCursor(res.nextCursor);
       setRefreshing(false);
     };
 
+    const interval = setInterval(() => {
+      console.log('Fetching latest clankers')
+      void periodFetchLatest()
+    }, 1000 * 15)
+
     void fetchClankers();
+
+    return () => {
+      clearInterval(interval)
+    }
   }, []);
 
+  async function periodFetchLatest() {
+    const res = await serverFetchLatestClankers();
+    setClankers((prevClankers) => mergeFront(prevClankers, res.data));
+  }
+
+  function mergeFront(clankers: ClankerWithData[], newClankers: ClankerWithData[]) {
+    return newClankers.concat(clankers.filter(c => !newClankers.find(nc => nc.contract_address === c.contract_address)))
+  }
+
   async function fetchMore() {
+    if (!nextCursor) {
+      return
+    }
     setRefreshing(true)
-    const newPage = page + 1;
-    const res = await serverFetchClankers(newPage);
+    const res = await serverFetchLatestClankers(nextCursor);
     setClankers(prevClankers => [...prevClankers, ...res.data]);
-    setPage(newPage);
+    setNextCursor(res.nextCursor);
     setRefreshing(false)
   }
 
@@ -281,7 +301,18 @@ export function LatestFeed() {
         <Loader text="Loading new clankers" />
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {clankers.map((item, i) => (
+        {clankers[0] && <motion.div
+          key={clankers[0].contract_address}
+          animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 0.4 }}
+        >
+          <ClankItem
+            c={clankers[0]}
+            onSelect={() => setDetailClanker(clankers[0] ?? null)}
+            balance={balances[clankers[0].contract_address]}
+          />
+        </motion.div>}
+        {clankers.slice(1).map((item, i) => (
           <ClankItem 
             key={i} 
             c={item} 
@@ -610,7 +641,7 @@ export function ClankItem({
               </motion.div>
             </WithTooltip>
             }
-            {c.rewardsUSD && <WithTooltip text="Creator rewards">
+            {c.rewardsUSD ? <WithTooltip text="Creator rewards">
               <motion.div
                 className="item_stat text-[#FF83EC]"
               >
@@ -628,7 +659,7 @@ export function ClankItem({
                   ${formatPrice(c.rewardsUSD)}
                 </div>
               </motion.div>
-            </WithTooltip>}
+            </WithTooltip> : null}
           </div>
         </div>
         <div className="item_content_line w-full"/>

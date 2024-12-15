@@ -320,41 +320,27 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   return res
 }
 
-export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
-  let clankers: ClankerWithData[] = [];
-  let lastPage = page;
-
-  while (clankers.length < 6) {
-    const newClankers = await fetchPage(page);
-    clankers = [...clankers, ...newClankers];
-    lastPage = page;
-    page++;
-  }
-
-  return {
-    data: clankers,
-    lastPage,
-  }
-}
-
-async function fetchPage(page = 1): Promise<ClankerWithData[]> {
-  const res = await axios.get(`https://www.clanker.world/api/tokens?sort=desc&page=${page}&type=all`);
-  const data = res.data.data;
-  const parsedData = data.map((item: any) => {
-    const parsed = ClankerSchema.safeParse(item);
-    if (!parsed.success) {
-      console.log(JSON.stringify(parsed.error.errors, null, 2));
-      throw new Error(`Invalid clanker data: ${parsed.error.errors.join(", ")}`);
+export async function serverFetchLatestClankers(cursor?: number): Promise<{ data: ClankerWithData[], nextCursor?: number }> {
+  const PAGE_SIZE = 12
+  const clankers = await db.clanker.findMany({
+    take: PAGE_SIZE,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
+    orderBy: {
+      created_at: 'desc'
     }
-    return parsed.data;
-  }) as Clanker[];
+  })
 
-  const mcaps = await fetchMultiPoolMarketCaps(parsedData.map(d => d.pool_address), parsedData.map(d => d.contract_address))
-  const casts = await fetchCastsNeynar(parsedData.map(d => d.cast_hash).filter(h => h !== null))
-  const rewards = await clankerRewardsUSDAPIBatched(parsedData.map(d => d.pool_address))
-  const clankersWithMarketCap = parsedData.map((clanker, i) => {
+  const nextCursor = clankers.length === PAGE_SIZE ? clankers[clankers.length - 1]!.id : undefined;
+
+  const mcaps = await fetchMultiPoolMarketCaps(clankers.map(d => d.pool_address), clankers.map(d => d.contract_address))
+  const casts = await fetchCastsNeynar(clankers.map(d => d.cast_hash).filter(h => h !== null))
+  const rewards = await clankerRewardsUSDAPIBatched(clankers.map(d => d.pool_address))
+  const clankersWithMarketCap = clankers.map((clanker, i) => {
     return { 
       ...clanker, 
+      created_at: clanker.created_at.toString(),
+      type: clanker.type ?? "",
       marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
@@ -362,7 +348,10 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
-  return clankersWithMarketCap
+  return {
+    data: clankersWithMarketCap,
+    nextCursor,
+  }
 }
 
 export async function fetchParentCast(hash: string) {
