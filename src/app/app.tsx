@@ -115,45 +115,47 @@ function ClankfunShill() {
   }, [])
 
   return (
-    <motion.div
-      className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
-      onClick={() => setDetailClanker(data)}
-      whileHover={{
-        scale: 1.05,
-        rotate: 2,
-        transition: { duration: 0.2 },
-      }}
-    >
-      <div className="flex justify-start items-center gap-1.5 flex-grow">
-        {data && <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />}
-        <div className="flex justify-start items-center gap-2 flex-grow">
-          <div className="text-white flex-grow text-sm font-semibold   uppercase leading-[14px]">$clankfun</div>
-          {data && <div className="text-white/70 text-sm font-medium   leading-[14px]">${formatPrice(data.marketCap)}</div>}
+    <div>
+      <motion.div
+        className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
+        onClick={() => setDetailClanker(data)}
+        whileHover={{
+          scale: 1.05,
+          rotate: 2,
+          transition: { duration: 0.2 },
+        }}
+      >
+        <div className="flex justify-start items-center gap-1.5 flex-grow">
+          {data && <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />}
+          <div className="flex justify-start items-center gap-2 flex-grow">
+            <div className="text-white flex-grow text-sm font-semibold   uppercase leading-[14px]">$clankfun</div>
+            {data && <div className="text-white/70 text-sm font-medium   leading-[14px]">${formatPrice(data.marketCap)}</div>}
+          </div>
         </div>
-      </div>
-      <div className="flex justify-start items-center gap-1">
-        <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
-          <WithTooltip text="View on DexScreener">
-            <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
-              <ChartAreaIcon size={24} />
-            </div>
-          </WithTooltip>
-        </a>
-        <a href="https://t.me/clankfun" target="_blank" rel="noopener noreferrer">
-          <WithTooltip text="Join the community">
-            <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
-              <MessageCircle size={24} />
-            </div>
-          </WithTooltip>
-        </a>
-      </div>
-      {detailClanker && <BuyModal
-        clanker={detailClanker}
-        onOpenChange={() => setDetailClanker(null)}
+        <div className="flex justify-start items-center gap-1">
+          <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
+            <WithTooltip text="View on DexScreener">
+              <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
+                <ChartAreaIcon size={24} />
+              </div>
+            </WithTooltip>
+          </a>
+          <a href="https://t.me/clankfun" target="_blank" rel="noopener noreferrer">
+            <WithTooltip text="Join the community">
+              <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
+                <MessageCircle size={24} />
+              </div>
+            </WithTooltip>
+          </a>
+        </div>
+      </motion.div>
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
         apeAmount={0}
-        onAped={() => { void 0 }}
-      />}
-    </motion.div>
+        onAped={() => void 0}
+      />
+    </div>
   )
 }
 
@@ -865,7 +867,10 @@ function BuyModal({
 }) {
 
   return (
-    <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
+    <Dialog open={clanker !== null} onOpenChange={() => {
+      console.log('closing modal')
+      onOpenChange(false)
+    }}>
       <DialogContent className="max-w-[90%]">
         <DialogHeader>
           <VisuallyHidden.Root>
