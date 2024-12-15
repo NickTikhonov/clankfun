@@ -677,6 +677,34 @@ export function ClankItem({
   )
 }
 
+export function ClankItemGhost() {
+  return (
+    <motion.div
+      className={`item_bg relative cursor-pointer 'border border-transparent' overflow-hidden`}
+    >
+      <motion.div
+        className={`absolute right-1 md:right-3 top-1 md:top-3 font-medium text-xs uppercase`}
+      >
+      </motion.div>
+      <div className="item_image flex items-center justify-center relative">
+        <div className="bg-white/10 w-full h-full grid place-items-center text-[8px] md:text-base">
+        </div>
+      </div>
+      <div className="item_content flex-grow">
+        <div className="item_content_info font-bold w-full">
+          <div className="item_content_title overflow-hidden">
+            <div className="item_title_tagline truncate">
+            </div>
+            <div className={`text-clip item_title_title text-[18px] md:text-[28px]`}>
+            </div>
+          </div>
+        </div>
+        <div className="item_content_line w-full"/>
+      </div>
+    </motion.div>
+  )
+}
+
 function BalanceView({ balance, decimals, priceUsd }: { balance: number, decimals: number, priceUsd: number }) {
   return (
     <div className="absolute bottom-0 left-0 w-full bg-gradient-to-bl from-pink-500 to-purple-500  text-white p-1 grid place-items-center">
@@ -1034,68 +1062,14 @@ function Loader({
   text?: string
 }) {
   return (
-    <motion.div
-      className="text-white text-center p-10"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      transition={{
-        duration: 0.5,
-        repeat: Infinity,
-        repeatType: "reverse",
-      }}
-    >
-      <div className="flex justify-center gap-4">
-        {text}
-        <motion.div
-          className="text-4xl"
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.5, 1],
-            opacity: [0.25, 1, 0.25],
-          }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-            times: [0, 0.5, 1],
-            repeat: Infinity,
-          }}
-        >
-          <ChartAreaIcon />
-        </motion.div>
-        <motion.div
-          className="text-4xl"
-          animate={{
-            rotate: [360, 0],
-            scale: [1, 1.5, 1],
-            opacity: [0.25, 1, 0.25],
-          }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-            times: [0, 0.5, 1],
-            repeat: Infinity,
-          }}
-        >
-          <ChartAreaIcon />
-        </motion.div>
-        <motion.div
-          className="text-4xl"
-          animate={{
-            rotate: [0, -360],
-            scale: [1, 1.5, 1],
-            opacity: [0.25, 1, 0.25],
-          }}
-          transition={{
-            duration: 0.5,
-            ease: "easeInOut",
-            times: [0, 0.5, 1],
-            repeat: Infinity,
-          }}
-        >
-          <ChartAreaIcon />
-        </motion.div>
-      </div>
-    </motion.div>
+    <div className="w-full h-full clanker_grid animate-pulse">
+      <ClankItemGhost />
+      <ClankItemGhost />
+      <ClankItemGhost />
+      <ClankItemGhost />
+      <ClankItemGhost />
+      <ClankItemGhost />
+    </div>
   )
 }
 
