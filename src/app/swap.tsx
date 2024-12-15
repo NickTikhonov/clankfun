@@ -19,7 +19,7 @@ import { FFromInput, FToInput } from "./components/FSwapper";
 import { FButton } from "./components/FButton";
 import { Button } from "~/components/ui/button";
 import { categorizeAmt } from '~/lib/analytics';
-import { ExternalLink } from 'lucide-react';
+import { Copy, ExternalLink } from 'lucide-react';
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -303,7 +303,7 @@ export function SwapInterface({
         </FButton>
         <div className='flex-grow'/>
         <FButton onClick={() => copyCA()} faded>
-          <ExternalLink size={16} />
+          <Copy size={16} />
         </FButton>
       </div>
       <div className="flex flex-col gap-1">
