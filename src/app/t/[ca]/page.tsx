@@ -41,6 +41,13 @@ export async function generateMetadata({ params }: {
       url: `https://clank.fun/t/${data.contract_address}`,
       logo: `https://clank.fun/og.png`,
       type: 'website'
+    },
+    twitter: {
+      title,
+      description,
+      cardType: 'summary_large_image',
+      handle: '@clankfun',
+      images: [data.img_url ? data.img_url : 'https://clank.fun/og.png'],
     }
   }
 }
