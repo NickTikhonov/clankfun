@@ -324,24 +324,26 @@ export function SwapInterface({
             <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You do not have sufficient funds</div>
           </div>
         : (
-          <div className="flex flex-col w-full">
-            <div className="h-[15px] justify-between items-start inline-flex mt-2">
-              <div className="text-white/50 text-[15px] font-normal   leading-[15px]">Balance:</div>
-              <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(balances().buying)} {sellTokenName}</div>
-            </div>
-            <div className="h-[15px] justify-between items-start inline-flex mt-2">
-              <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll swap</div>
-              <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(amount)} {sellTokenName} ({formatUSD(swapUSDAmount)})</div>
-            </div>
-            <div className="h-[15px] justify-between items-start inline-flex mt-2">
-              <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll receive</div>
-              <div className="text-purple-500 text-[15px] font-normal   leading-[15px]">~{formatAmount(buyAmount)} {buyTokenName}</div>
-            </div>
-            <div className="h-[15px] justify-between items-start inline-flex mt-2">
-              <div className="text-white/50 text-[15px] font-normal   leading-[15px]">clank.fun fee</div>
-              <div className="text-white text-[15px] font-normal   leading-[15px]">0.5% ({formatUSD(swapUSDAmount * 0.005)})</div>
-            </div>
-          </div>
+          <>
+            {swapUSDAmount > 0.01 && <div className="flex flex-col w-full">
+              <div className="h-[15px] justify-between items-start inline-flex mt-2">
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">Balance:</div>
+                <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(balances().buying)} {sellTokenName}</div>
+              </div>
+              <div className="h-[15px] justify-between items-start inline-flex mt-2">
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll swap</div>
+                <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(amount)} {sellTokenName} ({formatUSD(swapUSDAmount)})</div>
+              </div>
+              <div className="h-[15px] justify-between items-start inline-flex mt-2">
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll receive</div>
+                <div className="text-purple-500 text-[15px] font-normal   leading-[15px]">~{formatAmount(buyAmount)} {buyTokenName}</div>
+              </div>
+              <div className="h-[15px] justify-between items-start inline-flex mt-2">
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">clank.fun fee</div>
+                <div className="text-white text-[15px] font-normal   leading-[15px]">0.5% ({formatUSD(swapUSDAmount * 0.005)})</div>
+              </div>
+            </div>}
+          </>
         )}
       <div className="mt-3">
       {address ? <ApproveOrReviewButton 
