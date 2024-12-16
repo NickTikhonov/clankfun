@@ -111,7 +111,12 @@ export async function serverFetchPortfolio(address: string): Promise<ClankerWith
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
       balance: balances[clanker.contract_address] ?? 0
     }
-  }).sort((a, b) => b.balance - a.balance)
+  }).sort((a, b) => { 
+    const aUsd = a.priceUsd * a.balance / 10**a.decimals
+    const bUsd = b.priceUsd * b.balance / 10**b.decimals
+    
+    return bUsd - aUsd 
+  })
 
   return res
 }
