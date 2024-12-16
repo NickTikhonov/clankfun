@@ -5,7 +5,7 @@
 
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { type ClankerWithData, ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
