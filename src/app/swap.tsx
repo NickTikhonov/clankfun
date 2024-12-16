@@ -100,6 +100,10 @@ export function SwapInterface({
   }
 
   const handlePercentageChange = (newPercentage: number) => {
+    if (newPercentage == 100 && isBuying) {
+      // If we're buying, save some ETH for gas
+      newPercentage = 98;
+    }
     const { eth, token } = balances();
     const newAmount = isBuying ? eth * (newPercentage / 100) : token * (newPercentage / 100);
     setAmountText(String(newAmount));

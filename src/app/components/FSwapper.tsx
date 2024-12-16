@@ -39,7 +39,7 @@ export function FFromInput({ a, value, onChange, tokenName, tokenImage, onPercen
         <FButton faded onClick={() => onPercentageClick(25)}>25%</FButton>
         <FButton faded onClick={() => onPercentageClick(50)}>50%</FButton>
         <FButton faded onClick={() => onPercentageClick(75)}>75%</FButton>
-        <FButton faded onClick={() => onPercentageClick(98)}>100%</FButton>
+        <FButton faded onClick={() => onPercentageClick(100)}>100%</FButton>
       </div>
     </div>
   )
