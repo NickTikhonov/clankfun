@@ -80,7 +80,7 @@ export async function getTokenBalance(address?: string): Promise<Record<string, 
   const balances = data.result.tokenBalances.reduce((acc: any, curr: any) => {
     // const balance = ethers.formatEther(parseInt(curr.tokenBalance).toString())
     const balance = parseInt(BigNumber.from(curr.tokenBalance).toString())
-    acc[curr.contractAddress] = balance;
+    acc[curr.contractAddress.toLowerCase()] = balance;
     return acc;
   }, {});
 

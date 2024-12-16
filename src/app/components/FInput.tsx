@@ -7,7 +7,7 @@ type Props = {
 
 export function FSearchInput({ value, onChange }: Props) {
   return(
-    <div className="max-w-80 h-[30px] px-2 bg-white/10 rounded-lg justify-start items-center gap-2 inline-flex">
+    <div className="w-full md:max-w-80 h-[30px] px-2 bg-white/10 rounded-lg justify-start items-center gap-2 inline-flex">
       <SearchIcon />
       <input
         className="text-white/50 text-[15px] font-medium   leading-[15px] bg-transparent outline-none w-full"

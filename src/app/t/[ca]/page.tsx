@@ -64,11 +64,10 @@ export default async function Page({
   }
 
   return (
-    <div className="w-full h-full min-h-screen flex flex-col">
-      <Nav refreshing={false} view="detail"/>
+    <Nav refreshing={false} view="detail">
       <div className="px-2 md:px-6 flex-grow">
         <TradeApp clanker={data} />
       </div>
-    </div>
+    </Nav>
   )
 }

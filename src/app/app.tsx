@@ -6,19 +6,19 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ChartAreaIcon, ChartNoAxesColumnIncreasing, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
+import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { io } from 'socket.io-client';
 import moment from "moment"
 
-type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail"
+type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail" | "portfolio"
 
 function shareUrl() {
   const url = new URL("https://warpcast.com/~/compose")
@@ -75,30 +75,29 @@ export function App({
     feed = <TopFeed/>
   } else if (view === "launch"){
     feed =  <LaunchView />
+  } else if (view === "portfolio"){
+    feed = <Portfolio/>
   } else {
     feed = <HotFeed/>
   }
 
   return (
-    <div className="w-full flex justify-center min-h-screen bg-[#090F11]">
-      <div className="w-full">
-        <Nav 
-          refreshing={false} 
-          view={view} 
-          setView={setView} 
-          setSearchQuery={setSearchQuery}
-        />
-        <div className="md:hidden px-2">
-          <ClankfunShill/>
-        </div>
-        <div className="fixed bottom-10 right-10 hidden md:block z-[30]">
-          <ClankfunShill/>
-        </div>
-        <div className="pb-2 px-2 pt-4 lg:px-6 lg:pb-6">
-          {feed}
-        </div>
+    <Nav 
+      refreshing={false} 
+      view={view} 
+      setView={setView} 
+      setSearchQuery={setSearchQuery}
+    >
+      <div className="md:hidden px-2">
+        <ClankfunShill/>
       </div>
-    </div>
+      <div className="fixed bottom-10 right-10 hidden md:block z-[30]">
+        <ClankfunShill/>
+      </div>
+      <div className="pb-2 px-2 pt-4 lg:px-6 lg:pb-6">
+        {feed}
+      </div>
+    </Nav>
   );
 }
 
@@ -339,6 +338,57 @@ export function LatestFeed() {
         onOpenChange={() => setDetailClanker(null)} 
         apeAmount={apeAmount}
         onAped={() => setApeAmount(null)}
+      />
+    </div>
+  );
+}
+
+export function Portfolio() {
+  const [clankers, setClankers] = useState<ClankerWithDataAndBalance[]>([]);
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [refreshing, setRefreshing] = useState(false);
+  const { address } = useAccount()
+
+  useEffect(() => {
+    const fetchClankers = async () => {
+      if (!address) return
+      setRefreshing(true);
+      const data = await serverFetchPortfolio(address);
+      setClankers(data);
+      setRefreshing(false);
+    };
+
+    void fetchClankers();
+  }, [address]);
+
+  return (
+    <div className="w-full">
+      {!address && (
+        <div className="w-full h-20 grid place-items-center">
+          <div className="flex items-center gap-2 p-4 rounded bg-white/10"> 
+            <Link2 size={24} className="flex-none" />
+            Connect your wallet to view your portfolio
+          </div>
+        </div>
+      )}
+      {refreshing && (
+        <Loader text="Loading top clankers"  />
+      )}
+      <motion.div className="w-full h-full clanker_grid">
+        {clankers.map((item, i) => (
+          <ClankItem 
+            key={i} 
+            c={item} 
+            onSelect={() => setDetailClanker(item)} 
+            balance={item.balance}
+          />
+        ))}
+      </motion.div>
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
+        apeAmount={0}
+        onAped={() => void 0}
       />
     </div>
   );
@@ -719,67 +769,95 @@ export function Nav({
   view, 
   setView,
   setSearchQuery,
+  children,
 }: { 
   refreshing: boolean, 
   view: NavPage, 
   setView?: (view: NavPage) => void  
   setSearchQuery?: (query: string) => void
+  children: ReactNode
 }) {
   return (
-    <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
-      <div className="flex items-center gap-2 mb-2 md:mb-4 text-white">
-        <Link className="flex flex-none" href="/">
-          <ClankfunLogo />
-        </Link>
-        <div className="flex-grow"/>
-        <Explainer refreshing={refreshing} />
-        <FConnectButton />
-      </div>
-      <div className="w-full flex gap-2">
-        <div className="w-full max-w-[400px] flex justify-start gap-2">
-          <Link href="/">
-            <FButton
-              selected={view === "hot"}
-            >
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clipRule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
-              </svg>
-              Hot
-            </FButton>
+    <div className="w-full h-full min-h-screen flex flex-col">
+      <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
+        <div className="flex items-center gap-2 mb-2 md:mb-4 text-white">
+          <Link className="flex flex-none" href="/">
+            <ClankfunLogo />
           </Link>
-          <Link href="/top">
-            <FButton
-              selected={view === "top"}
-            >
-              <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5.37858 0C4.19768 0 3.01801 0.473334 2.13755 1.41249C1.25337 2.35562 0.711914 3.72238 0.711914 5.44444C0.711914 8.04593 2.5574 10.1907 4.27559 11.6101C5.15564 12.3371 6.05282 12.9161 6.77213 13.3158C7.13163 13.5155 7.45427 13.6746 7.71505 13.7863C7.84467 13.8419 7.96776 13.8895 8.07782 13.9248C8.16175 13.9516 8.32177 14 8.48969 14C8.65762 14 8.81763 13.9516 8.90156 13.9248C9.01163 13.8895 9.13471 13.8419 9.26433 13.7863C9.52512 13.6746 9.84776 13.5155 10.2073 13.3158C10.9266 12.9161 11.8237 12.3371 12.7038 11.6101C14.422 10.1907 16.2675 8.04593 16.2675 5.44444C16.2675 3.72238 15.726 2.35562 14.8418 1.41249C13.9614 0.473334 12.7817 0 11.6008 0C10.4695 0 9.56421 0.339812 8.94364 0.678303C8.77084 0.772558 8.61918 0.867188 8.48969 0.955253C8.3602 0.867188 8.20854 0.772558 8.03574 0.678303C7.41518 0.339812 6.50985 0 5.37858 0Z" fill="white"/>
-              </svg>
-              Top
-            </FButton>
-          </Link>
-          <Link href="/new">
-            <FButton
-              selected={view === "latest"}
-            >
-              <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.267578 7C3.76758 5.6875 5.95508 3.5 7.26758 0C8.58008 3.5 10.7676 5.6875 14.2676 7C10.7676 8.3125 8.58008 10.5 7.26758 14C5.95508 10.5 3.76758 8.3125 0.267578 7Z" fill="white"/>
-              </svg>
-              New
-            </FButton>
-          </Link>
+          <div className="flex-grow"/>
+          <Explainer refreshing={refreshing} />
+          <FConnectButton />
         </div>
-        <div className="flex-grow flex justify-end">
-          {setSearchQuery && <ClankerSearch 
-            selected={view === "search"}
-            onQueryUpdate={(v) => {
-              setSearchQuery(v)
-              if (v.length > 0) {
-                setView && setView("search")
-              }
-            }} />}
+        <div className="w-full flex gap-2">
+          <NavLinks view={view} className="hidden md:block"/>
+          <div className="flex-grow flex md:justify-end w-full">
+            {setSearchQuery && <ClankerSearch 
+              selected={view === "search"}
+              onQueryUpdate={(v) => {
+                setSearchQuery(v)
+                if (v.length > 0) {
+                  setView && setView("search")
+                }
+              }} />}
+          </div>
         </div>
+      </nav>
+      {children}
+      <div className="fixed bottom-0 left-0 w-full bg-[#090F11] z-[9] p-2 md:hidden flex justify-center">
+        <NavLinks view={view} className="md:hidden justify-center"/>
       </div>
-    </nav>
+    </div>
+  )
+}
+
+function NavLinks({
+  view,
+  className
+}: {
+  view: NavPage,
+  className?: string
+}) {
+  return (
+    <div className={`w-full max-w-[400px] flex justify-start gap-2 ${className ? className : ""}`}>
+      <Link href="/">
+        <FButton
+          selected={view === "hot"}
+        >
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
+          </svg>
+          Hot
+        </FButton>
+      </Link>
+      <Link href="/top">
+        <FButton
+          selected={view === "top"}
+        >
+          <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5.37858 0C4.19768 0 3.01801 0.473334 2.13755 1.41249C1.25337 2.35562 0.711914 3.72238 0.711914 5.44444C0.711914 8.04593 2.5574 10.1907 4.27559 11.6101C5.15564 12.3371 6.05282 12.9161 6.77213 13.3158C7.13163 13.5155 7.45427 13.6746 7.71505 13.7863C7.84467 13.8419 7.96776 13.8895 8.07782 13.9248C8.16175 13.9516 8.32177 14 8.48969 14C8.65762 14 8.81763 13.9516 8.90156 13.9248C9.01163 13.8895 9.13471 13.8419 9.26433 13.7863C9.52512 13.6746 9.84776 13.5155 10.2073 13.3158C10.9266 12.9161 11.8237 12.3371 12.7038 11.6101C14.422 10.1907 16.2675 8.04593 16.2675 5.44444C16.2675 3.72238 15.726 2.35562 14.8418 1.41249C13.9614 0.473334 12.7817 0 11.6008 0C10.4695 0 9.56421 0.339812 8.94364 0.678303C8.77084 0.772558 8.61918 0.867188 8.48969 0.955253C8.3602 0.867188 8.20854 0.772558 8.03574 0.678303C7.41518 0.339812 6.50985 0 5.37858 0Z" fill="white"/>
+          </svg>
+          Top
+        </FButton>
+      </Link>
+      <Link href="/new">
+        <FButton
+          selected={view === "latest"}
+        >
+          <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0.267578 7C3.76758 5.6875 5.95508 3.5 7.26758 0C8.58008 3.5 10.7676 5.6875 14.2676 7C10.7676 8.3125 8.58008 10.5 7.26758 14C5.95508 10.5 3.76758 8.3125 0.267578 7Z" fill="white"/>
+          </svg>
+          New
+        </FButton>
+      </Link>
+      <Link href="/portfolio">
+        <FButton
+          selected={view === "portfolio"}
+        >
+          <Coins size={16} className="flex-none" />
+          Portfolio
+        </FButton>
+      </Link>
+    </div>
   )
 }
 
@@ -802,7 +880,7 @@ export default function ClankerSearch({
   }, [query, debouncedQueryUpdate])
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full flex md:justify-end">
       <FSearchInput 
         value={query}
         onChange={(e) => setQuery(e)}

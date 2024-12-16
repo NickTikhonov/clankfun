@@ -62,6 +62,60 @@ export async function serverEthUSDPrice() {
   return getEthUsdPrice()
 }
 
+export type ClankerWithDataAndBalance = ClankerWithData & { balance: number }
+
+export async function serverFetchPortfolio(address: string): Promise<ClankerWithDataAndBalance[]> {
+  const DUST_THRESHOLD = 0.0001
+
+  const balances = await getTokenBalance(address)
+  const contract_addresses = Object
+    .entries(balances)
+    .filter((e) => e[1] > DUST_THRESHOLD)
+    .map((e) => e[0].toLowerCase())
+
+  const dbClankers = await db.clanker.findMany({
+    where: {
+      contract_address: {
+        in: contract_addresses
+      },
+    }
+  })
+
+  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
+  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
+  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
+
+  const [mcaps, casts, rewards] = await Promise.all([
+    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
+    fetchCastsNeynar(castHashes),
+    clankerRewardsUSDAPIBatched(poolAddresses)
+  ])
+
+  const res = dbClankers.map((clanker, i) => {
+    return {
+      id: clanker.id,
+      created_at: clanker.created_at.toString(),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address,
+      requestor_fid: clanker.requestor_fid,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type ?? "unknown",
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
+      balance: balances[clanker.contract_address] ?? 0
+    }
+  }).sort((a, b) => b.balance - a.balance)
+
+  return res
+}
+
 export async function serverFetchBalance(address?: string) {
   return await getTokenBalance(address)
 }
