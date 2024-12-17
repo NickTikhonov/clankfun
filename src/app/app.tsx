@@ -117,7 +117,10 @@ function ClankfunShill() {
     <div>
       <motion.div
         className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
-        onClick={() => setDetailClanker(data)}
+        onClick={() => { 
+          setDetailClanker(data)
+          window.open(`https://clank.fun/t/${data?.contract_address}`, '_blank')
+        }}
         whileHover={{
           scale: 1.05,
           rotate: 2,
