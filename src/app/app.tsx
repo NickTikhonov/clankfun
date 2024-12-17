@@ -5,7 +5,7 @@
 
 "use client"
 
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
@@ -960,7 +960,7 @@ import { FInput, FSearchInput } from "./components/FInput";
 import { PriceInput } from "~/components/ui/priceinput";
 import Link from "next/link";
 import { LaunchView } from "./components/LaunchView";
-import { Referral, serverFetchReferral } from "./server-referral";
+import { type Referral, serverFetchReferral } from "./server-referral";
 import { track } from "@vercel/analytics/react";
 
 function BuyModal({ 

@@ -4,7 +4,6 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-
 import { Nav, TradeApp } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
 import { serverFetchCA } from "~/app/server";
