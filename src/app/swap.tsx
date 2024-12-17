@@ -159,6 +159,13 @@ export function SwapInterface({
     }
     if (receipt) {
       if (isBuying) {
+        if (refAddress) {
+          track("Copytrade", {
+            token: clanker.symbol,
+            clanker: clanker.contract_address,
+            referrer: refAddress
+          })
+        }
         track("Buy", {
           amountUSD: categorizeAmt(swapUSDAmount),
           token: clanker.symbol,

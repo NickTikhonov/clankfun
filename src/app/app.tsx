@@ -1063,13 +1063,6 @@ export function TradeApp({
 
   async function onTradeComplete() {
     if (!address || !clanker.contract_address) return
-    if (referrer) {
-      track("Copytrade", {
-        clanker: clanker.contract_address,
-        referrer: referrer.walletAddress
-      })
-    }
-
     const res = await serverFetchReferral({
       address: address,
       contract_address: clanker.contract_address
