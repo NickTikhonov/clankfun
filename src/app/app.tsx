@@ -1059,10 +1059,7 @@ export function TradeApp({
   const [referTrade, setReferral] = useState<{
     id: string
     numTrades: number
-  } | null>({
-    id: "2342343",
-    numTrades: 0
-  })
+  } | null>(null)
 
   async function onTradeComplete() {
     if (!address || !clanker.contract_address) return
