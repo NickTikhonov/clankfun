@@ -68,6 +68,9 @@ export default async function Page({
   let ref: Referral | null = null
   if (refId) {
     ref = await serverFetchReferralById({ id: refId })
+    if (ref) {
+      track("View referral link")
+    }
   }
 
   const { ca } = await params

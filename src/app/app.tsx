@@ -961,6 +961,7 @@ import { PriceInput } from "~/components/ui/priceinput";
 import Link from "next/link";
 import { LaunchView } from "./components/LaunchView";
 import { Referral, serverFetchReferral } from "./server-referral";
+import { track } from "@vercel/analytics/react";
 
 function BuyModal({ 
   clanker, 
@@ -1059,6 +1060,13 @@ export function TradeApp({
 
   async function onTradeComplete() {
     if (!address || !clanker.contract_address) return
+    if (referrer) {
+      track("Copytrade", {
+        clanker: clanker.contract_address,
+        referrer: referrer.walletAddress
+      })
+    }
+
     const res = await serverFetchReferral({
       address: address,
       contract_address: clanker.contract_address
@@ -1139,6 +1147,7 @@ export function TradeApp({
           <div className="flex flex-col gap-2">
             <FButton primary onClick={() => {
               window.open(tweetIntentUrl(), "_blank")
+              track("Clicked X ref share")
             }}>
               Share on X
             </FButton>
@@ -1149,6 +1158,7 @@ export function TradeApp({
                   title: "Copied",
                   description: "Copied referral link to clipboard",
                 })
+                track("Copied ref link")
               }}
             >
               Copy Link
