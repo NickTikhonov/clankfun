@@ -119,7 +119,7 @@ function ClankfunShill() {
         className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
         onClick={() => { 
           setDetailClanker(data)
-          window.open(`https://clank.fun/t/${data?.contract_address}`, '_blank')
+          window.open(`https://clank.fun/t/${data?.contract_address}`)
         }}
         whileHover={{
           scale: 1.05,
