@@ -1078,7 +1078,7 @@ export function TradeApp({
   }
 
   function tweetIntentUrl() {
-    const text = `I just bought $${clanker.symbol}\n`
+    const text = `I just bought $${clanker.symbol} on @clankfun\n`
     const url = `https://clank.fun/t/${clanker.contract_address}?r=${referTrade?.id}`
 
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
