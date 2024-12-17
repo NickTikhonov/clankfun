@@ -1077,6 +1077,7 @@ export function TradeApp({
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
   }
 
+
   return (
     <div className="h-full w-full flex flex-col lg:flex-row gap-4">
       {clanker?.pool_address && <iframe 
@@ -1085,6 +1086,7 @@ export function TradeApp({
         title="GeckoTerminal Embed" 
         src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=1&grayscale=0&light_chart=0`}
         allow="clipboard-write"
+        style={{ height: `calc(100vh - 150px)` }}
       >
       </iframe>}
       <div className="flex-grow flex flex-col gap-4">
