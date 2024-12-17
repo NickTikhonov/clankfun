@@ -1068,7 +1068,7 @@ export function TradeApp({
 
   function tweetIntentUrl() {
     const text = `I just bought $${clanker.symbol}\n`
-    const url = `https://clank.fun/t/${clanker.contract_address}?r=${referral?.id}`
+    const url = `https://clank.fun/t/${clanker.contract_address}?r=${referTrade?.id}`
 
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
   }
@@ -1144,7 +1144,7 @@ export function TradeApp({
             </FButton>
             <FButton 
               onClick={() => {
-                navigator.clipboard.writeText(`https://clank.fun/t/${clanker.contract_address}?r=${referral.id}`)
+                navigator.clipboard.writeText(`https://clank.fun/t/${clanker.contract_address}?r=${referTrade.id}`)
                 toast({
                   title: "Copied",
                   description: "Copied referral link to clipboard",
