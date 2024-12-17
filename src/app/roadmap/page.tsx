@@ -1,7 +1,7 @@
 
 export default function Page() {
   return (
-    <div className="bg-black flex justify-center items-center h-screen">
+    <div className="bg-[#090F11] flex justify-center items-center h-screen">
       <div className="text-white flex flex-col gap-2 items-center">
         <div className="flex items-center gap-2 text-2xl">
           <img src="/clankfun.png" className="w-8 h-8 rounded-md"/>

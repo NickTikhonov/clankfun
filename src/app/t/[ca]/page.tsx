@@ -9,14 +9,18 @@ import { Nav, TradeApp } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
 import { serverFetchCA } from "~/app/server";
 import { track } from "@vercel/analytics/server";
-import { Metadata } from "next";
+import { type Metadata } from "next";
+import { type Referral, serverFetchReferralById } from "~/app/server-referral";
 
 type Params = Promise<{ca: string}>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export async function generateMetadata({ params }: {
+export async function generateMetadata({ params, searchParams }: {
   params: Params
+  searchParams: SearchParams
 }): Promise<Metadata>  {
   const { ca } = await params
+  await searchParams
   await getOrScrapeByCa(ca)
   const data = await serverFetchCA(ca)
 
@@ -52,10 +56,20 @@ export async function generateMetadata({ params }: {
 }
 
 export default async function Page({ 
-  params
+  params,
+  searchParams
 }: { 
   params: Params
+  searchParams: SearchParams
 }) {
+  const sp = await searchParams
+  const refId = (sp.r ?? null) as string | null
+  console.log("REFID:", refId)
+  let ref: Referral | null = null
+  if (refId) {
+    ref = await serverFetchReferralById({ id: refId })
+  }
+
   const { ca } = await params
   await getOrScrapeByCa(ca)
   const data = await serverFetchCA(ca)
@@ -63,10 +77,11 @@ export default async function Page({
     return <div>Not found</div>
   }
 
+  console.log("REF:", ref)
   return (
     <Nav refreshing={false} view="detail">
       <div className="px-2 md:px-6 flex-grow">
-        <TradeApp clanker={data} />
+        <TradeApp clanker={data} referrer={ref} />
       </div>
     </Nav>
   )

@@ -6,12 +6,12 @@
 "use client"
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
+import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, CoinsIcon, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
@@ -778,7 +778,7 @@ export function Nav({
   children: ReactNode
 }) {
   return (
-    <div className="w-full h-full min-h-screen flex flex-col">
+    <div className="w-full h-full min-h-screen flex flex-col bg-[#090F11]">
       <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
         <div className="flex items-center gap-2 mb-2 md:mb-4 text-white">
           <Link className="flex flex-none" href="/">
@@ -956,10 +956,11 @@ import { CastCard } from "./components/CastCard";
 import { ClankfunLogo } from "./components/Logo";
 import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
-import { FSearchInput } from "./components/FInput";
+import { FInput, FSearchInput } from "./components/FInput";
 import { PriceInput } from "~/components/ui/priceinput";
 import Link from "next/link";
 import { LaunchView } from "./components/LaunchView";
+import { Referral, serverFetchReferral } from "./server-referral";
 
 function BuyModal({ 
   clanker, 
@@ -972,7 +973,6 @@ function BuyModal({
   apeAmount: number | null
   onAped: () => void
 }) {
-
   return (
     <Dialog open={clanker !== null} onOpenChange={() => {
       console.log('closing modal')
@@ -1034,6 +1034,7 @@ function BuyModal({
               apeAmount={apeAmount} 
               onAped={onAped}
               onSwapComplete={() => onOpenChange(false)}
+              refAddress={null}
             />}
           </div>}
         </div>
@@ -1043,64 +1044,126 @@ function BuyModal({
 }
 
 export function TradeApp({
-  clanker
+  clanker,
+  referrer
 }: {
   clanker: ClankerWithData
+  referrer: Referral | null
 }) {
+  const { toast } = useToast()
+  const { address } = useAccount()
+  const [referTrade, setReferral] = useState<{
+    id: string
+    numTrades: number
+  } | null>(null)
+
+  async function onTradeComplete() {
+    if (!address || !clanker.contract_address) return
+    const res = await serverFetchReferral({
+      address: address,
+      contract_address: clanker.contract_address
+    })
+    setReferral(res)
+  }
+
+  function tweetIntentUrl() {
+    const text = `I just bought $${clanker.symbol}\n`
+    const url = `https://clank.fun/t/${clanker.contract_address}?r=${referral?.id}`
+
+    return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+  }
+
   return (
-        <div className="h-full w-full flex flex-col lg:flex-row gap-4">
-          {clanker?.pool_address && <iframe 
-            className="hidden lg:block rounded-lg w-full h-[700px]"
-            id="geckoterminal-embed" 
-            title="GeckoTerminal Embed" 
-            src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=1&grayscale=0&light_chart=0`}
-            allow="clipboard-write"
-          >
-          </iframe>}
-          <div className="flex-grow flex flex-col gap-4">
-            <div className="h-20 justify-start items-center gap-3 inline-flex">
-              {clanker.img_url ? 
-              <img className="w-20 h-20 relative rounded-[3px] border border-white/5" src={clanker.img_url ?? ""} />
-              : 
-              <div className="bg-purple-500 w-20 h-20 grid place-items-center text-xs">
-                ${clanker.symbol}
-              </div>}
-              <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex overflow-hidden">
-                <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex overflow-hidden">
-                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium   leading-[13px] truncate">${clanker.symbol}</div>
-                  <div className="self-stretch text-white text-[28px] font-medium   leading-7 truncate">{clanker.name}</div>
-                </div>
-                <div className="self-stretch justify-start items-center gap-4 inline-flex">
-                  <div className="justify-start items-center gap-1 flex">
-                    <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
-                    </svg>
-                    <div className="text-[#4ee6fb] text-sm font-medium   leading-[14px]">${formatPrice(clanker.marketCap)}</div>
-                  </div>
-                  {clanker.cast && <div className="justify-start items-center gap-[3px] flex">
-                    <div className="text-[#6affbc] text-sm font-medium   uppercase leading-[14px] flex gap-1">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
-                      </svg>
-                      {clanker.cast.reactions.likes_count + clanker.cast.reactions.recasts_count + clanker.cast.replies.count}
-                    </div>
-                  </div>}
-                </div>
-              </div>
+    <div className="h-full w-full flex flex-col lg:flex-row gap-4">
+      {clanker?.pool_address && <iframe 
+        className="hidden lg:block rounded-lg w-full h-[700px]"
+        id="geckoterminal-embed" 
+        title="GeckoTerminal Embed" 
+        src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=1&grayscale=0&light_chart=0`}
+        allow="clipboard-write"
+      >
+      </iframe>}
+      <div className="flex-grow flex flex-col gap-4">
+        <div className="h-20 justify-start items-center gap-3 inline-flex">
+          {clanker.img_url ? 
+          <img className="w-20 h-20 relative rounded-[3px] border border-white/5" src={clanker.img_url ?? ""} />
+          : 
+          <div className="bg-purple-500 w-20 h-20 grid place-items-center text-xs">
+            ${clanker.symbol}
+          </div>}
+          <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex overflow-hidden">
+            <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex overflow-hidden">
+              <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium   leading-[13px] truncate">${clanker.symbol}</div>
+              <div className="self-stretch text-white text-[28px] font-medium   leading-7 truncate">{clanker.name}</div>
             </div>
-            {clanker.cast && 
-            <a href={`https://warpcast.com/${clanker.cast.author.username}/${clanker.cast.hash.slice(0, 10)}`} target="_blank" rel="noreferrer">
-              <CastCard cast={clanker.cast} withText/>
-            </a>
-            }
-            <SwapInterface 
-              clanker={clanker} 
-              apeAmount={null} 
-              onAped={() => void 0}
-              onSwapComplete={() => void 0}
-            />
+            <div className="self-stretch justify-start items-center gap-4 inline-flex">
+              <div className="justify-start items-center gap-1 flex">
+                <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+                </svg>
+                <div className="text-[#4ee6fb] text-sm font-medium   leading-[14px]">${formatPrice(clanker.marketCap)}</div>
+              </div>
+              {clanker.cast && <div className="justify-start items-center gap-[3px] flex">
+                <div className="text-[#6affbc] text-sm font-medium   uppercase leading-[14px] flex gap-1">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
+                  </svg>
+                  {clanker.cast.reactions.likes_count + clanker.cast.reactions.recasts_count + clanker.cast.replies.count}
+                </div>
+              </div>}
+            </div>
           </div>
         </div>
+        {clanker.cast && 
+        <a href={`https://warpcast.com/${clanker.cast.author.username}/${clanker.cast.hash.slice(0, 10)}`} target="_blank" rel="noreferrer">
+          <CastCard cast={clanker.cast} withText/>
+        </a>
+        }
+        {referTrade && <div className="p-2 flex flex-col gap-2 bg-white/10 rounded-xl w-full md:max-w-[360px]">
+          <div className="flex gap-2 items-center">
+            <p className="text-lg font-bold">
+              Share your trade to earn
+            </p>
+            <CoinsIcon size={14} />
+          </div>
+          <p className="text-sm">
+            Share the unique URL below to
+            let others know you bought ${clanker.symbol} and earn 0.5% on every copy trade made
+            through your link
+          </p>
+          <FInput 
+            value={`https://clank.fun/t/${clanker.contract_address}?r=${referTrade.id}`}
+            onChange={() => void 0}
+            placeholder=""
+          />
+          <div className="flex flex-col gap-2">
+            <FButton primary onClick={() => {
+              window.open(tweetIntentUrl(), "_blank")
+            }}>
+              Share on X
+            </FButton>
+            <FButton 
+              onClick={() => {
+                navigator.clipboard.writeText(`https://clank.fun/t/${clanker.contract_address}?r=${referral.id}`)
+                toast({
+                  title: "Copied",
+                  description: "Copied referral link to clipboard",
+                })
+              }}
+            >
+              Copy Link
+            </FButton>
+          </div>
+        </div>}
+        <SwapInterface 
+          clanker={clanker} 
+          apeAmount={null} 
+          onAped={() => void 0}
+          onSwapComplete={onTradeComplete}
+          refAddress={referrer?.walletAddress ?? null}
+        />
+      </div>
+    </div>
   )
 }
 

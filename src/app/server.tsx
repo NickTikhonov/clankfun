@@ -50,8 +50,8 @@ type ClankerResponse = {
   lastPage: number;
 }
 
-export async function serverFetchSwapQuote(userAddress: string, tokenAddress: string, amount: number, isSell: boolean) {
-  return await getQuote(userAddress, tokenAddress, amount, isSell)
+export async function serverFetchSwapQuote(userAddress: string, tokenAddress: string, amount: number, isSell: boolean, refAddress?: string) {
+  return await getQuote(userAddress, tokenAddress, amount, isSell, refAddress)
 }
 
 export async function serverFetchSwapPrice(userAddress: string, tokenAddress: string, amount: number, isSell: boolean) {

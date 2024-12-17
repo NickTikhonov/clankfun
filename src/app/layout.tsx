@@ -55,7 +55,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 
   return (
-      <html lang="en" className={`${geist.variable} dark`}>
+      <html lang="en" className={`${geist.variable} dark bg-[#090F11]`}>
         <body>
           <Web3Provider>
             {children}

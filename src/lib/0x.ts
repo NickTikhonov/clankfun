@@ -18,11 +18,15 @@ export async function getQuote(
   takerAddress: string,
   tokenAddress: string, 
   amount: number, 
-  sell: boolean
+  sell: boolean,
+  refAddress?: string
 ) {
   const sellToken = sell ? tokenAddress : WETH_ADDRESS;
   const buyToken = sell ? WETH_ADDRESS : tokenAddress;
   const sellAmount = parseUnits(amount.toString(), 18).toString();
+
+  // If the user is buying and there is a referral address, use it as the fee recipient
+  const feeRecipient = sell ? env.FEE_RECIPIENT : (refAddress ?? env.FEE_RECIPIENT);
 
   const quoteParams = new URLSearchParams({
     chainId: "8453",
@@ -30,7 +34,7 @@ export async function getQuote(
     buyToken: buyToken,
     sellAmount: sellAmount,
     taker: takerAddress,
-    swapFeeRecipient: env.FEE_RECIPIENT,
+    swapFeeRecipient: feeRecipient,
     tradeSurplusRecipient: env.FEE_RECIPIENT,
     swapFeeBps: FEE_BPS.toString(),
     swapFeeToken: WETH_ADDRESS,

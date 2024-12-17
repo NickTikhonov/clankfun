@@ -51,12 +51,14 @@ export function SwapInterface({
   clanker, 
   apeAmount, 
   onSwapComplete,
-  onAped
+  onAped,
+  refAddress
 }: { 
   clanker: ClankerWithData, 
   apeAmount: number | null 
   onSwapComplete: () => void
   onAped: () => void
+  refAddress: string | null
 }) {
 
   const { toast } = useToast()
@@ -137,26 +139,6 @@ export function SwapInterface({
     return () => { cancelToken.cancelled = true; }
   }, [amount, isBuying]);
 
-  async function ape(amountEth: number) {
-    if (!ethBalance) return;
-    const balance = balances().eth
-    if (amountEth > balance) {
-      toast({
-        title: "Insufficient balance",
-        description: "You do not have enough ETH to make this trade. Please choose a different amount"
-      })
-    } else {
-      toast({
-        title: "Aping in 🦍",
-      })
-
-      setAmountText(String(amountEth))
-      setIsBuying(true)
-      startSwap(amountEth, true)
-      onAped()
-    }
-  }
-
   const {
     data: hash,
     isPending: transactionPending,
@@ -216,7 +198,8 @@ export function SwapInterface({
       address, 
       clanker.contract_address, 
       amount, 
-      !isBuying
+      !isBuying,
+      refAddress ? refAddress : undefined
     )
 
     if (!quote.transaction) return
@@ -295,6 +278,10 @@ export function SwapInterface({
 
   const actionPending = transactionPending || signPending;
   const hasFunds = balances().buying >= amount;
+  let feeText = "clank.fun fee:"
+  if (refAddress && isBuying) {
+    feeText = `referral fee (${refAddress.slice(0,5)})`
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -335,15 +322,15 @@ export function SwapInterface({
                 <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(balances().buying)} {sellTokenName}</div>
               </div>
               <div className="h-[15px] justify-between items-start inline-flex mt-2">
-                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll swap</div>
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll swap:</div>
                 <div className="text-white text-[15px] font-normal   leading-[15px]">{formatAmount(amount)} {sellTokenName} ({formatUSD(swapUSDAmount)})</div>
               </div>
               <div className="h-[15px] justify-between items-start inline-flex mt-2">
-                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll receive</div>
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">You&apos;ll receive:</div>
                 <div className="text-purple-500 text-[15px] font-normal   leading-[15px]">~{formatAmount(buyAmount)} {buyTokenName}</div>
               </div>
               <div className="h-[15px] justify-between items-start inline-flex mt-2">
-                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">clank.fun fee</div>
+                <div className="text-white/50 text-[15px] font-normal   leading-[15px]">{feeText}</div>
                 <div className="text-white text-[15px] font-normal   leading-[15px]">0.5% ({formatUSD(swapUSDAmount * 0.005)})</div>
               </div>
             </div>}

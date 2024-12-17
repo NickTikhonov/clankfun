@@ -24,3 +24,13 @@ model Clanker {
 
   @@index([contract_address])
 }
+
+model TradeReferral {
+  id              String   @id @default(cuid())
+  walletAddress   String
+  contractAddress String
+  numTrades       Int      @default(0)
+
+  @@unique([walletAddress, contractAddress])
+  @@index([walletAddress, contractAddress])
+}
