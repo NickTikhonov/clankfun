@@ -1059,7 +1059,10 @@ export function TradeApp({
   const [referTrade, setReferral] = useState<{
     id: string
     numTrades: number
-  } | null>(null)
+  } | null>({
+    id: "2342343",
+    numTrades: 0
+  })
 
   async function onTradeComplete() {
     if (!address || !clanker.contract_address) return
@@ -1075,6 +1078,13 @@ export function TradeApp({
     const url = `https://clank.fun/t/${clanker.contract_address}?r=${referTrade?.id}`
 
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+  }
+
+  function farcasterIntentURL() {
+    const text = `I just bought $${clanker.symbol}`
+    const url = `https://clank.fun/t/${clanker.contract_address}?r=${referTrade?.id}`
+
+    return `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(url)}`
   }
 
 
@@ -1143,12 +1153,24 @@ export function TradeApp({
             placeholder=""
           />
           <div className="flex flex-col gap-2">
-            <FButton primary onClick={() => {
-              window.open(tweetIntentUrl(), "_blank")
-              track("Clicked X ref share")
-            }}>
-              Share on X
-            </FButton>
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="flex-grow flex flex-col">
+                <FButton primary onClick={() => {
+                  window.open(tweetIntentUrl(), "_blank")
+                  track("Clicked X ref share")
+                }}>
+                  Share on X
+                </FButton>
+              </div>
+              <div className="flex-grow flex flex-col">
+                <FButton primary onClick={() => {
+                  window.open(farcasterIntentURL(), "_blank")
+                  track("Clicked FC ref share")
+                }}>
+                  Share on Farcaster
+                </FButton>
+              </div>
+            </div>
             <FButton 
               onClick={() => {
                 navigator.clipboard.writeText(`https://clank.fun/t/${clanker.contract_address}?r=${referTrade.id}`)
