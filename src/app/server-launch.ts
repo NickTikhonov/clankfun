@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use server"
 
 import axios from 'axios';
@@ -6,7 +7,9 @@ import { redirect } from 'next/navigation';
 import { verifyMessage } from 'viem';
 import { env } from '~/env';
 import { getClankfunBalance } from './onchain';
+import wordfilter from "wordfilter"
 import { CLANKFUN_BALANCE_GATE } from './constants';
+import { announceNewTokenOnTelegram } from '~/lib/telegram';
 
 export async function serverCheckBalance(address: string) {
   const balance = await getClankfunBalance(address)
@@ -27,7 +30,10 @@ export async function serverLaunchToken({
   nonce: string,
   signature: any,
 }) {
-  throw new Error("Not yet ;)")
+  // throw new Error("Token deployment is disabled")
+  if (wordfilter.blacklisted(name) || wordfilter.blacklisted(ticker)) {
+    throw new Error("Token name or ticker is inappropriate. Maybe try something a bit less sus ;)")
+  }
   const balance = await getClankfunBalance(address)
   if (balance < CLANKFUN_BALANCE_GATE) {
     throw new Error("Insufficient $CLANKFUN balance")
@@ -67,6 +73,7 @@ export async function serverLaunchToken({
     if (!response.data.contract_address) {
       throw new Error("Failed to deploy token")
     }
+    await announceNewTokenOnTelegram(name, ticker, response.data.contract_address)
     return response.data.contract_address as string
   } catch(e: any) {
     console.error("Failed to deploy token", e.message)

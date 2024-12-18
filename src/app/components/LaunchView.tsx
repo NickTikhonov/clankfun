@@ -144,7 +144,7 @@ export function LaunchView() {
       <div className="w-full max-w-[600px] flex flex-col items-center justify-center gap-6">
         <div className="w-full">
           <span className="text-white text-[28px] font-medium   leading-7">
-            Launch a token with
+            Launch a coin with
             <br />
           </span>
           <span className="text-[#b4a2ff] text-[28px] font-medium   leading-7">

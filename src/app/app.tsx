@@ -789,6 +789,16 @@ export function Nav({
           </Link>
           <div className="flex-grow"/>
           <Explainer refreshing={refreshing} />
+          <Link href="/launch">
+            <FButton primary>
+              <span className="hidden md:block">
+                Launch a Coin
+              </span>
+              <span className="md:hidden">
+                Launch
+              </span>
+            </FButton>
+          </Link>
           <FConnectButton />
         </div>
         <div className="w-full flex gap-2">
@@ -1203,7 +1213,7 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
             What is this?
           </span>
           <span className="md:hidden">
-            What?
+            ???
           </span>
         </FButton>
       </DialogTrigger>

@@ -19,6 +19,7 @@ export const env = createEnv({
     CLANKER_API_KEY: z.string(),
     CLANKER_API_KEY_2: z.string(),
     UPLOADTHING_TOKEN: z.string(),
+    TELEGRAM_API_KEY: z.string(),
   },
 
   /**
@@ -48,6 +49,7 @@ export const env = createEnv({
     CLANKER_API_KEY: process.env.CLANKER_API_KEY,
     CLANKER_API_KEY_2: process.env.CLANKER_API_KEY_2,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
+    TELEGRAM_API_KEY: process.env.TELEGRAM_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
