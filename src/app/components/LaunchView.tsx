@@ -174,7 +174,7 @@ export function LaunchView() {
           : null}
         </div>
         {hasBalance ? <div className="w-full">
-          <ClankItem c={previewClanker} nolink/>
+          <ClankItem c={previewClanker} noLink/>
         </div> : null}
         {hasBalance ? <div className="w-full flex flex-col items-start justify-start gap-4">
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
