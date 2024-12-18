@@ -617,13 +617,15 @@ export function ClankItem({
   onSelect, 
   balance,
   onHover,
-  withoutCast
+  withoutCast,
+  noLink = false,
 }: { 
   c: ClankerWithData, 
   onSelect?: () => void, 
   balance?: number,
   onHover?: (isHovered: boolean) => void
   withoutCast?: boolean
+  noLink?: boolean
 }) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -640,7 +642,7 @@ export function ClankItem({
   return (
     <motion.a
       className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30 z-10' : 'border border-transparent'} overflow-hidden`}
-      href={`/t/${c.contract_address}`}
+      href={noLink ? '#' : `/t/${c.contract_address}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}

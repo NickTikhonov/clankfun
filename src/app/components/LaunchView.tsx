@@ -159,11 +159,11 @@ export function LaunchView() {
           <div className="w-full   text-[15px] font-medium leading-[15px] text-white mb-2">
             You need to hold at least {CLANKFUN_BALANCE_GATE.toLocaleString()} $CLANKFUN to launch tokens
           </div>
-          {hasBalance && <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+          {hasBalance ? <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
             <CircleCheckBigIcon className="w-[20px] h-[20px] text-[#00ff00]" />
             You hold enough $CLANKFUN
-          </div>}
-          {noBalance && 
+          </div> : null}
+          {noBalance ?
           <div className="w-full">
             <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
               <XIcon className="w-[20px] h-[20px] text-red-500" />
@@ -171,12 +171,12 @@ export function LaunchView() {
               <a href={`/t/${CLANKFUN_CA}`} className="text-[#b4a2ff] underline">Get $CLANKFUN</a>
             </div>
           </div>
-          }
+          : null}
         </div>
-        {hasBalance && <div className="w-full">
-          <ClankItem c={previewClanker} />
-        </div>}
-        {hasBalance && <div className="w-full flex flex-col items-start justify-start gap-4">
+        {hasBalance ? <div className="w-full">
+          <ClankItem c={previewClanker} nolink/>
+        </div> : null}
+        {hasBalance ? <div className="w-full flex flex-col items-start justify-start gap-4">
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
             <div className="w-full   text-[15px] font-medium leading-[15px] text-white">
               Name
@@ -195,7 +195,7 @@ export function LaunchView() {
             </div>
             <FImageUpload onImage={setImage} />
           </div>
-        </div>}
+        </div>: null}
         {address ? (<Button onClick={launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
           <div className="  text-[15px] font-medium leading-[15px] text-white">
             {buttonName}
