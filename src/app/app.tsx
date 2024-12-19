@@ -11,7 +11,7 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, CoinsIcon, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
+import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, CoinsIcon, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Share, Users } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
@@ -1207,8 +1207,18 @@ export function TradeApp({
 }
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const hasSeenExplainer = localStorage.getItem('hasSeenExplainer');
+    if (!hasSeenExplainer) {
+      setIsDialogOpen(true);
+      localStorage.setItem('hasSeenExplainer', 'true');
+    }
+  }, []);
+
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <FButton>
           <span className="hidden md:block">
@@ -1221,17 +1231,22 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px] flex flex-col">
         <DialogHeader>
-          {/* <DialogTitle>find and trade the hottest coins on Base</DialogTitle> */}
           <ClankfunLogo />
         </DialogHeader>
-        <div className="text-white text-[38px] font-semibold   leading-[38px]">Find and trade the hottest coins on Base.</div>
-        <div className="text-white/80 text-[15px] font-normal   leading-[18px]">Clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. All Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.</div>
-        <div className="text-white/80 text-[15px] font-normal   leading-[18px]">Learn more about Clanker and Farcaster;</div>
-        <div className="flex flex-col">
-          <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal   underline leading-[18px]">Clanker</a>
-          <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="text-[#de4efb] text-[15px] font-normal   underline leading-[18px]">Farcaster</a>
-          <a href="https://t.me/clankfun" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal   underline leading-[18px]">Telegram community</a>
+        <div className="text-white text-lg md:text-[38px] font-semibold md:leading-[38px]">Launch and trade the hottest coins on Base.</div>
+        <div className="flex flex-col gap-2 text-sm text-white/80">
+          <div className="flex items-center gap-4"><Rocket size={16} className="flex-none" />Every coin launches as an ERC-20 on Base with a $34.76k marketcap. No bonding curve. Trade on Uniswap immediately.</div>
+          <div className="flex items-center gap-4"><Rocket size={16} className="flex-none"/>Devs earn ~0.4% of trading volume via LP fees. Launched a coin that trades $1m volume? You earn $4k in fees.</div>
+          <div className="flex items-center gap-4"><Rocket size={16} className="flex-none"/>Share trades made on clank.fun and earn 0.5% off every copytrade.</div>
         </div>
+        <div className="flex flex-col">
+          <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal   underline leading-[18px]">Learn about the Clanker protocol</a>
+          <a href="https://t.me/clankfun" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal   underline leading-[18px]">Join our active TG community</a>
+        </div>
+        <FButton primary onClick={() => setIsDialogOpen(false)}>
+          Start trading
+          <Rocket size={16} className="ml-2" />
+        </FButton>
       </DialogContent>
     </Dialog>
   )
