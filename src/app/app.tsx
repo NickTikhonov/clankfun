@@ -783,7 +783,7 @@ export function Nav({
   children: ReactNode
 }) {
   return (
-    <div className="w-full h-full min-h-screen flex flex-col bg-[#090F11]">
+    <div className="w-full h-full min-h-screen flex flex-col bg-[#090F11] pb-16 md:pb-0">
       <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
         <div className="flex items-center gap-2 mb-2 md:mb-4 text-white">
           <Link className="flex flex-none" href="/">
