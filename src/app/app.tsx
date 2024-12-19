@@ -1236,7 +1236,7 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
         <div className="text-white text-lg md:text-[38px] font-semibold md:leading-[38px]">Launch and trade the hottest coins on Base.</div>
         <div className="flex flex-col gap-2 text-sm text-white/80">
           <div className="flex items-center gap-4"><Rocket size={16} className="flex-none" />Every coin launches as an ERC-20 on Base with a $34.76k marketcap. No bonding curve. Trade on Uniswap immediately.</div>
-          <div className="flex items-center gap-4"><Rocket size={16} className="flex-none"/>Devs earn ~0.4% of trading volume via LP fees. Launched a coin that trades $1m volume? You earn $4k in fees.</div>
+          <div className="flex items-center gap-4"><Rocket size={16} className="flex-none"/>Devs earn ~0.4% of trading volume via LP fees. Launched a coin that trades $1m volume? You earn around $4k in fees.</div>
           <div className="flex items-center gap-4"><Rocket size={16} className="flex-none"/>Share trades made on clank.fun and earn 0.5% off every copytrade.</div>
         </div>
         <div className="flex flex-col">
