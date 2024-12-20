@@ -31,9 +31,9 @@ async function getCachedOrFetchFromDune(queryId: number, cacheKey: string): Prom
 }
 
 export async function getHotClankersCA(): Promise<string[]> {
-  return getCachedOrFetchFromDune(4358090, "hot_clankers");
+  return getCachedOrFetchFromDune(4358090, "dune_hot_clankers");
 }
 
 export async function getTopClankersCA(): Promise<string[]> {
-  return getCachedOrFetchFromDune(4358063, "top_clankers");
+  return getCachedOrFetchFromDune(4358063, "dune_top_clankers");
 }
