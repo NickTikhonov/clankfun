@@ -45,6 +45,59 @@ export type ClankerWithData = Clanker & {
   cast: CastWithInteractions | null 
 }
 
+type DBClanker = {
+  symbol: string;
+  type: string | null;
+  name: string;
+  id: number;
+  created_at: Date;
+  tx_hash: string;
+  contract_address: string;
+  requestor_fid: number;
+  img_url: string | null;
+  pool_address: string;
+  cast_hash: string | null;
+  page: number;
+}
+
+async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
+  if (c.length === 0) {
+    return []
+  }
+
+  const poolAddresses = c.map(d => d.pool_address).filter(h => h !== null)
+  const contractAddresses = c.map(d => d.contract_address).filter(h => h !== null)
+  const castHashes = c.map(d => d.cast_hash).filter(h => h !== null)
+
+  const [mcaps, casts, rewards] = await Promise.all([
+    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
+    fetchCastsNeynar(castHashes),
+    clankerRewardsUSDAPIBatched(poolAddresses)
+  ])
+
+  const res = c.map((clanker, i) => {
+    return {
+      id: clanker.id,
+      created_at: clanker.created_at.toString(),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address,
+      requestor_fid: clanker.requestor_fid,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type ?? "unknown",
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
+    }
+  })
+  return res
+}
+
 type ClankerResponse = {
   data: ClankerWithData[];
   lastPage: number;
@@ -81,44 +134,15 @@ export async function serverFetchPortfolio(address: string): Promise<ClankerWith
     }
   })
 
-  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
-  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
-  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
-
-  const [mcaps, casts, rewards] = await Promise.all([
-    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
-    fetchCastsNeynar(castHashes),
-    clankerRewardsUSDAPIBatched(poolAddresses)
-  ])
-
-  const res = dbClankers.map((clanker, i) => {
-    return {
-      id: clanker.id,
-      created_at: clanker.created_at.toString(),
-      tx_hash: clanker.tx_hash,
-      contract_address: clanker.contract_address,
-      requestor_fid: clanker.requestor_fid,
-      name: clanker.name,
-      symbol: clanker.symbol,
-      img_url: clanker.img_url,
-      pool_address: clanker.pool_address,
-      cast_hash: clanker.cast_hash,
-      type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
-      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
-      rewardsUSD: rewards[clanker.pool_address] ?? -1,
-      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
-      balance: balances[clanker.contract_address] ?? 0
-    }
-  }).sort((a, b) => { 
-    const aUsd = a.priceUsd * a.balance / 10**a.decimals
-    const bUsd = b.priceUsd * b.balance / 10**b.decimals
-    
-    return bUsd - aUsd 
-  })
-
-  return res
+  const embued = await embueClankers(dbClankers)
+  return embued
+    .map((c) => ({ ...c, balance: balances[c.contract_address] ?? 0 }))
+    .sort((a, b) => { 
+      const aUsd = a.priceUsd * a.balance / 10**a.decimals
+      const bUsd = b.priceUsd * b.balance / 10**b.decimals
+      
+      return bUsd - aUsd 
+    })
 }
 
 export async function serverFetchBalance(address?: string) {
@@ -134,7 +158,6 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
   }
 
   const hotClankers = await getHotClankersCA()
-
   const dbClankers = await db.clanker.findMany({
     where: {
       contract_address: {
@@ -146,47 +169,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
     },
   })
 
-  // Sort dbClankers in the same order as hotClankers
-  dbClankers.sort((a, b) => {
-    const aIndex = hotClankers.findIndex(c => c.toLowerCase() === a.contract_address)
-    const bIndex = hotClankers.findIndex(c => c.toLowerCase() === b.contract_address)
-    return aIndex - bIndex
-  })
-
-  if (dbClankers.length === 0) {
-    return []
-  }
-
-  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
-  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
-  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
-
-  const [mcaps, casts, rewards] = await Promise.all([
-    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
-    fetchCastsNeynar(castHashes),
-    clankerRewardsUSDAPIBatched(poolAddresses)
-  ])
-
-  const res = dbClankers.map((clanker, i) => {
-    return {
-      id: clanker.id,
-      created_at: clanker.created_at.toString(),
-      tx_hash: clanker.tx_hash,
-      contract_address: clanker.contract_address,
-      requestor_fid: clanker.requestor_fid,
-      name: clanker.name,
-      symbol: clanker.symbol,
-      img_url: clanker.img_url,
-      pool_address: clanker.pool_address,
-      cast_hash: clanker.cast_hash,
-      type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
-      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
-      rewardsUSD: rewards[clanker.pool_address] ?? -1,
-      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
-    }
-  })
+  const res = await embueClankers(dbClankers)
   await redis.set(cacheKey, JSON.stringify(res), "EX", 60 * 10);
   return res
 }
@@ -223,37 +206,7 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
     return []
   }
 
-  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
-  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
-  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
-
-  const [mcaps, casts, rewards] = await Promise.all([
-    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
-    fetchCastsNeynar(castHashes),
-    clankerRewardsUSDAPIBatched(poolAddresses)
-  ])
-
-  const out = dbClankers.map((clanker, i) => {
-    return {
-      id: clanker.id,
-      created_at: clanker.created_at.toString(),
-      tx_hash: clanker.tx_hash,
-      contract_address: clanker.contract_address,
-      requestor_fid: clanker.requestor_fid,
-      name: clanker.name,
-      symbol: clanker.symbol,
-      img_url: clanker.img_url,
-      pool_address: clanker.pool_address,
-      cast_hash: clanker.cast_hash,
-      type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
-      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
-      rewardsUSD: rewards[clanker.pool_address] ?? -1,
-      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
-    }
-  })
-
+  const out = await embueClankers(dbClankers)
   out.sort((a, b) => b.marketCap - a.marketCap)
   return out
 }
@@ -322,12 +275,11 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
     return JSON.parse(cachedResult);
   }
 
-  const hotClankers = await getTopClankersCA()
-
+  const topDune = await getTopClankersCA()
   const dbClankers = await db.clanker.findMany({
     where: {
       contract_address: {
-        in: hotClankers.map(c => c.toLowerCase())
+        in: topDune.map(c => c.toLowerCase())
       },
     },
     orderBy: {
@@ -335,46 +287,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
     }
   })
 
-  // Sort dbClankers in the same order as hotClankers
-  dbClankers.sort((a, b) => {
-    const aIndex = hotClankers.findIndex(c => c.toLowerCase() === a.contract_address)
-    const bIndex = hotClankers.findIndex(c => c.toLowerCase() === b.contract_address)
-    return aIndex - bIndex
-  })
-
-  if (dbClankers.length === 0) {
-    return []
-  }
-
-  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
-  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
-  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
-  const rewards = await clankerRewardsUSDAPIBatched(poolAddresses)
-
-  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
-  const casts = await fetchCastsNeynar(castHashes)
-
-  const res = dbClankers.map((clanker, i) => {
-    return {
-      id: clanker.id,
-      created_at: clanker.created_at.toString(),
-      tx_hash: clanker.tx_hash,
-      contract_address: clanker.contract_address,
-      requestor_fid: clanker.requestor_fid,
-      name: clanker.name,
-      symbol: clanker.symbol,
-      img_url: clanker.img_url,
-      pool_address: clanker.pool_address,
-      cast_hash: clanker.cast_hash,
-      type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
-      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
-      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      rewardsUSD: rewards[clanker.pool_address] ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
-    }
-  }).sort((a, b) => b.marketCap - a.marketCap)
-
+  const res = (await embueClankers(dbClankers)).sort((a, b) => b.marketCap - a.marketCap)
   await redis.set(cacheKey, JSON.stringify(res), "EX", 60 * 10);
   return res
 }
@@ -392,23 +305,9 @@ export async function serverFetchLatestClankers(cursor?: number): Promise<{ data
 
   const nextCursor = clankers.length === PAGE_SIZE ? clankers[clankers.length - 1]!.id : undefined;
 
-  const mcaps = await fetchMultiPoolMarketCaps(clankers.map(d => d.pool_address), clankers.map(d => d.contract_address))
-  const casts = await fetchCastsNeynar(clankers.map(d => d.cast_hash).filter(h => h !== null))
-  const rewards = await clankerRewardsUSDAPIBatched(clankers.map(d => d.pool_address))
-  const clankersWithMarketCap = clankers.map((clanker, i) => {
-    return { 
-      ...clanker, 
-      created_at: clanker.created_at.toString(),
-      type: clanker.type ?? "",
-      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
-      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
-      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      rewardsUSD: rewards[clanker.pool_address] ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
-    }
-  })
+  const out = await embueClankers(clankers)
   return {
-    data: clankersWithMarketCap,
+    data: out,
     nextCursor,
   }
 }
