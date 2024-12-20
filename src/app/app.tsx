@@ -1071,7 +1071,10 @@ export function TradeApp({
   const [referTrade, setReferral] = useState<{
     id: string
     numTrades: number
-  } | null>(null)
+  } | null>({
+    id: "123213",
+    numTrades: 0
+  })
 
   async function onTradeComplete() {
     if (!address || !clanker.contract_address) return
@@ -1108,7 +1111,7 @@ export function TradeApp({
         style={{ height: `calc(100vh - 150px)` }}
       >
       </iframe>}
-      <div className="flex-grow flex flex-col gap-4">
+      <div className="flex flex-col gap-4 lg:w-[350px] flex-none">
         <div className="h-20 justify-start items-center gap-3 inline-flex">
           {clanker.img_url ? 
           <img className="w-20 h-20 relative rounded-[3px] border border-white/5" src={clanker.img_url ?? ""} />
@@ -1119,7 +1122,7 @@ export function TradeApp({
           <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex overflow-hidden">
             <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex overflow-hidden">
               <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium   leading-[13px] truncate">${clanker.symbol}</div>
-              <div className="self-stretch text-white text-[28px] font-medium   leading-7 truncate">{clanker.name}</div>
+              <div className="self-stretch text-white text-[28px] font-medium leading-7 truncate">{clanker.name}</div>
             </div>
             <div className="self-stretch justify-start items-center gap-4 inline-flex">
               <div className="justify-start items-center gap-1 flex">
@@ -1136,6 +1139,25 @@ export function TradeApp({
                   {clanker.cast.reactions.likes_count + clanker.cast.reactions.recasts_count + clanker.cast.replies.count}
                 </div>
               </div>}
+              {clanker.rewardsUSD ? <WithTooltip text="Creator rewards">
+                <motion.div
+                  className="item_stat text-[#FF83EC]"
+                >
+                  <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="vector">
+                    <path d="M0 13.5V7.72222H5.04178C4.51243 8.31942 3.91696 8.83191 3.21947 9.28207L2.61266 9.67371L3.39593 10.8873L4.00275 10.4957C4.66749 10.0667 5.25241 9.58794 5.77778 9.05085V13.5H0Z" fill="#FF83EC"/>
+                    <path d="M7.22222 9.05085V13.5H13V7.72222H7.95822C8.48757 8.31942 9.08304 8.83191 9.78053 9.28207L10.3873 9.67371L9.60407 10.8873L8.99725 10.4957C8.33251 10.0667 7.74759 9.58794 7.22222 9.05085Z" fill="#FF83EC"/>
+                    <path d="M4.33333 5.07407C4.33333 5.73886 4.87225 6.27778 5.53704 6.27778H5.77778V6.03704C5.77778 5.37225 5.23886 4.83333 4.57407 4.83333C4.44112 4.83333 4.33333 4.94112 4.33333 5.07407Z" fill="#FF83EC"/>
+                    <path d="M7.22222 6.03704V6.27778H7.46296C8.12775 6.27778 8.66667 5.73886 8.66667 5.07407C8.66667 4.94112 8.55888 4.83333 8.42593 4.83333C7.76114 4.83333 7.22222 5.37225 7.22222 6.03704Z" fill="#FF83EC"/>
+                    <path d="M9.82236 6.27778C10.007 5.91663 10.1111 5.50751 10.1111 5.07407C10.1111 4.14337 9.35663 3.38889 8.42593 3.38889C7.99249 3.38889 7.58337 3.49302 7.22222 3.67764V0.5H13V6.27778H9.82236Z" fill="#FF83EC"/>
+                    <path d="M4.57407 3.38889C5.00751 3.38889 5.41663 3.49302 5.77778 3.67764V0.5H0V6.27778H3.17764C2.99302 5.91663 2.88889 5.50751 2.88889 5.07407C2.88889 4.14337 3.64337 3.38889 4.57407 3.38889Z" fill="#FF83EC"/>
+                    </g>
+                  </svg>
+                  <div className="item_stat_text">
+                    ${formatPrice(clanker.rewardsUSD)}
+                  </div>
+                </motion.div>
+              </WithTooltip> : null}
             </div>
           </div>
         </div>
