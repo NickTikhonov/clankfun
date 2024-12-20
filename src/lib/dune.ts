@@ -35,5 +35,5 @@ export async function getHotClankersCA(): Promise<string[]> {
 }
 
 export async function getTopClankersCA(): Promise<string[]> {
-  return getCachedOrFetchFromDune(4358063, "dune_top_clankers");
+  return getCachedOrFetchFromDune(4459018, "dune_top_clankers_dec_21");
 }
