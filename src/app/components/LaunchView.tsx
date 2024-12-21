@@ -10,7 +10,7 @@ import { serverCheckBalance, serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics/react";
-import { CircleCheckBigIcon, CrossIcon, XIcon } from "lucide-react";
+import { CircleCheckBigIcon, CrossIcon, DollarSign, Megaphone, Wallet, XIcon } from "lucide-react";
 import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
 import { FButton } from "./FButton";
 
@@ -159,10 +159,23 @@ export function LaunchView() {
           <div className="w-full   text-[15px] font-medium leading-[15px] text-white mb-2">
             You need to hold at least {CLANKFUN_BALANCE_GATE.toLocaleString()} $CLANKFUN to launch tokens
           </div>
-          {hasBalance ? <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+          {hasBalance ? 
+          <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
             <CircleCheckBigIcon className="w-[20px] h-[20px] text-[#00ff00]" />
             You hold enough $CLANKFUN
           </div> : null}
+          <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+            <Megaphone className="w-[20px] h-[20px] text-[#00ff00]" />
+            Every trade on your coin will bump it to the front page on clank.fun
+          </div>
+          <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+            <DollarSign className="w-[20px] h-[20px] text-[#00ff00]" />
+            You will earn 0.4% of the trading volume in LP fees on your coin
+          </div>
+          <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+            <Wallet className="w-[20px] h-[20px] text-[#00ff00]" />
+            You will be able to claim your fees anytime on clanker.world
+          </div>
           {noBalance ?
           <div className="w-full">
             <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
