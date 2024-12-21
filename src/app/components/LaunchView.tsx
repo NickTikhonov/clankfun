@@ -166,15 +166,15 @@ export function LaunchView() {
           </div> : null}
           <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
             <Megaphone className="w-[20px] h-[20px] text-[#00ff00]" />
-            Every trade on your coin will bump it to the front page on clank.fun
+            Every trade bumps your coin to the front page
           </div>
           <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
             <DollarSign className="w-[20px] h-[20px] text-[#00ff00]" />
-            You will earn 0.4% of the trading volume in LP fees on your coin
+            Earn 0.4% of the trading volume in LP fees
           </div>
           <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
             <Wallet className="w-[20px] h-[20px] text-[#00ff00]" />
-            You will be able to claim your fees anytime on clanker.world
+            Claim your fees anytime on clanker.world
           </div>
           {noBalance ?
           <div className="w-full">
