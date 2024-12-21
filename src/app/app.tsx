@@ -42,20 +42,6 @@ function cleanText(text: string) {
   return cleaned;
 }
 
-function truncate(text: string, length: number) {
-  if (text.length > length) {
-    return text.slice(0, length) + "...";
-  }
-  return text;
-}
-
-function cleanTicker(text: string) {
-  if (text.length > 13) {
-    return text.slice(0, 13) + "...";
-  }
-  return text
-}
-
 export type AppProps = {
   initialView?: NavPage
 }
