@@ -807,6 +807,7 @@ export function Nav({
       <div className="fixed bottom-0 left-0 w-full bg-[#090F11] z-[9] p-2 md:hidden flex justify-center">
         <NavLinks view={view} className="md:hidden justify-center"/>
       </div>
+      <FSnow />
     </div>
   )
 }
@@ -963,6 +964,7 @@ import Link from "next/link";
 import { LaunchView } from "./components/LaunchView";
 import { type Referral, serverFetchReferral } from "./server-referral";
 import { track } from "@vercel/analytics/react";
+import { FSnow } from "./components/FSnow";
 
 function BuyModal({ 
   clanker, 
