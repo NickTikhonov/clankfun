@@ -17,15 +17,15 @@ export function FSnow() {
             value: "#ffffff"
           },
           number: {
-            value: 80,
+            value: 40,
             density: {
               enable: false
             }
           },
           opacity: {
             value: {
-              min: 0.3,
-              max: 0.8
+              min: 0.1,
+              max: 0.5
             }
           },
           move: {
