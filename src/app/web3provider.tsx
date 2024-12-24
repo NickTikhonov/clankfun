@@ -7,7 +7,7 @@ import { http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { env } from '~/env';
 import { Analytics } from "@vercel/analytics/react"
-import {PrivyProvider} from '@privy-io/react-auth';
+import { PrivyProvider } from '@privy-io/react-auth';
 import { createConfig } from '@privy-io/wagmi';
 import { WagmiProvider } from '@privy-io/wagmi';
 
@@ -31,6 +31,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
           accentColor: '#676FFF',
           logo: 'https://clank.fun/logo.png',
         },
+        walletConnectCloudProjectId: "562e09c2f744bbd6cf65d85eb7e0bb78",
         embeddedWallets: {
           createOnLogin: 'users-without-wallets',
         },
