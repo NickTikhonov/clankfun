@@ -14,12 +14,13 @@ import {
 } from "viem";
 import type { Address, Hex } from "viem";
 import { useToast } from "~/hooks/use-toast";
-import { ConnectKitButton } from "connectkit";
 import { FFromInput, FToInput } from "./components/FSwapper";
 import { FButton } from "./components/FButton";
 import { Button } from "~/components/ui/button";
 import { categorizeAmt } from '~/lib/analytics';
 import { Copy, ExternalLink } from 'lucide-react';
+import { FConnectButtonLarge } from './components/FConnectButton';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -82,6 +83,7 @@ export function SwapInterface({
 
   const sellTokenAddress = isBuying ? ETH_ADDRESS : clanker.contract_address as `0x${string}`;
 
+  const { authenticated } = usePrivy()
   const { address } = useAccount()
   const { data: ethBalance, isError: ethBalanceError } = useBalance({
     address,
@@ -146,6 +148,20 @@ export function SwapInterface({
     sendTransaction,
   } = useSendTransaction();
 
+  const {
+    wallets
+  } = useWallets()
+
+  useEffect(() => {
+    if (transactionError) {
+      console.log("Transaction error", transactionError)
+      toast({
+        title: "Failed to clank 👎",
+        description: "Your transaction has failed. Please try again.",
+      })
+    }
+  }, [transactionError])
+
   const { data: receipt, isLoading: waitingForReceipt, error: waitingError } = useWaitForTransactionReceipt({
     hash,
   });
@@ -201,6 +217,11 @@ export function SwapInterface({
   async function startSwap(amount: number, isBuying: boolean) {
     if (!address || !clanker || amount <= 0 ) return;
     console.log("Fetching quote")
+    if (!wallets?.[0]) {
+      return
+    }
+    await wallets[0].switchChain(8453)
+
     const quote = await serverFetchSwapQuote(
       address, 
       clanker.contract_address, 
@@ -209,7 +230,10 @@ export function SwapInterface({
       refAddress ? refAddress : undefined
     )
 
-    if (!quote.transaction) return
+    if (!quote.transaction) {
+      console.log("No transaction, returning")
+      return
+    }
 
     if (quote.permit2) {
       console.log("Getting signature")
@@ -232,6 +256,10 @@ export function SwapInterface({
 
     setUserShouldApprove(true);
     console.log("Sending transaction")
+    if (!sendTransaction) {
+      console.log("No sendTransaction")
+      return
+    }
     sendTransaction &&
     sendTransaction({
       account: address,
@@ -344,7 +372,7 @@ export function SwapInterface({
           </>
         )}
       <div className="mt-3">
-      {address ? <ApproveOrReviewButton 
+      {authenticated && address ? <ApproveOrReviewButton 
         onClick={initiateSwap} 
         taker={address as Address} 
         sellTokenAddress={sellTokenAddress} 
@@ -352,15 +380,7 @@ export function SwapInterface({
         price={priceRes} 
         userShouldApprove={userShouldApprove}
       /> : 
-        <ConnectKitButton.Custom>
-          {({ isConnected, isConnecting, show, hide, address, ensName, chain }) => {
-            return (
-              <Button onClick={show} className="w-full">
-                {isConnected ? address?.slice(0,5) : "Connect Wallet"}
-              </Button>
-            );
-          }}
-        </ConnectKitButton.Custom>
+        <FConnectButtonLarge />
       }
     </div>
     </div>

@@ -104,10 +104,12 @@ type ClankerResponse = {
 }
 
 export async function serverFetchSwapQuote(userAddress: string, tokenAddress: string, amount: number, isSell: boolean, refAddress?: string) {
+  console.log(`Fetching swap quote for token address: ${tokenAddress}, amount: ${amount}, isSell: ${isSell}`)
   return await getQuote(userAddress, tokenAddress, amount, isSell, refAddress)
 }
 
 export async function serverFetchSwapPrice(userAddress: string, tokenAddress: string, amount: number, isSell: boolean) {
+  console.log(`Fetching swap price for token address: ${tokenAddress}, amount: ${amount}, isSell: ${isSell}`)
   return await getSwapPrice(userAddress, tokenAddress, amount, isSell)
 }
 

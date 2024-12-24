@@ -3,39 +3,45 @@
 import {
   base,
 } from 'wagmi/chains';
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { env } from '~/env';
 import { Analytics } from "@vercel/analytics/react"
+import {PrivyProvider} from '@privy-io/react-auth';
+import { createConfig } from '@privy-io/wagmi';
+import { WagmiProvider } from '@privy-io/wagmi';
 
-const config = createConfig(
-  getDefaultConfig({
-    // Your dApps chains
-    chains: [base],
-    transports: {
-      [base.id]: http(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT),
-    },
-
-    // Required API Keys
-    walletConnectProjectId: "562e09c2f744bbd6cf65d85eb7e0bb78",
-    appName: "clank.fun",
-    appDescription: "find and trade clanker memecoins",
-    appUrl: "https://clank.fun", // your app's url
-    appIcon: "https://clank.fun/favicon.ico", // your app's icon, no bigger than 1024x1024px (max. 1MB)
-  }),
-);
+const config = createConfig({
+  chains: [base],
+  transports: {
+    [base.id]: http(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT),
+  }
+});
 
 
 const queryClient = new QueryClient();
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
-      </QueryClientProvider>
-      <Analytics />
-    </WagmiProvider>
+    <PrivyProvider
+      appId={env.NEXT_PUBLIC_PRIVY_APP_ID}
+      config={{
+        appearance: {
+          theme: 'dark',
+          accentColor: '#676FFF',
+          logo: 'https://clank.fun/logo.png',
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
+      }}
+    >
+        <QueryClientProvider client={queryClient}>
+          <WagmiProvider config={config}>
+            {children}
+          </WagmiProvider>
+        </QueryClientProvider>
+        <Analytics />
+    </PrivyProvider>
   );
 }

@@ -20,6 +20,7 @@ export const env = createEnv({
     CLANKER_API_KEY_2: z.string(),
     UPLOADTHING_TOKEN: z.string(),
     TELEGRAM_API_KEY: z.string(),
+    PRIVY_APP_SECRET: z.string(),
   },
 
   /**
@@ -29,6 +30,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: z.string(),
+    NEXT_PUBLIC_PRIVY_APP_ID: z.string(),
   },
 
   /**
@@ -50,6 +52,8 @@ export const env = createEnv({
     CLANKER_API_KEY_2: process.env.CLANKER_API_KEY_2,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
     TELEGRAM_API_KEY: process.env.TELEGRAM_API_KEY,
+    NEXT_PUBLIC_PRIVY_APP_ID: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+    PRIVY_APP_SECRET: process.env.PRIVY_APP_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

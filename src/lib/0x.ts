@@ -49,7 +49,6 @@ export async function getQuote(
   );
 
   const quote = await quoteResponse.json();
-  console.log(quote)
   return quote
 }
 
@@ -79,6 +78,5 @@ export async function getSwapPrice(
   );
 
   const price = await priceResponse.json();
-  console.log(price)
   return price
 }
