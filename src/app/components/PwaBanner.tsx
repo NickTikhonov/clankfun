@@ -33,7 +33,7 @@ export function PwaBanner() {
   return (
     <>
       {notPwa && (
-        <div className="md:hidden fixed bottom-10 text-xs w-full bg-[#7962d9] border-white/10 border-t text-white p-2 text-center flex flex-col gap-1 z-[100]">
+        <div className="md:hidden fixed bottom-12 text-xs w-full bg-[#7962d9] border-white/10 border-t text-white p-2 text-center flex flex-col gap-1 z-[100]">
           {/* <div className="w-full flex items-center justify-center gap-2">
             <Download className="w-5 h-5" />
           </div> */}
