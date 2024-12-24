@@ -1,9 +1,17 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+// @ts-nocheck
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
 import "./src/env.js";
+
+import nextPwa from 'next-pwa';
+const withPWA = nextPwa({
+  dest: 'public'
+})
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -45,4 +53,4 @@ const config = {
     skipTrailingSlashRedirect: true, 
 };
 
-export default config;
+export default withPWA(config);

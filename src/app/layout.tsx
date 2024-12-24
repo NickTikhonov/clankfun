@@ -56,6 +56,9 @@ export default function RootLayout({
 
   return (
       <html lang="en" className={`${geist.variable} dark bg-[#090F11]`}>
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+        </head>
         <body>
           <Web3Provider>
             {children}
