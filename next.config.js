@@ -8,7 +8,7 @@
  */
 import "./src/env.js";
 
-import nextPwa from 'next-pwa';
+import nextPwa from '@ducanh2912/next-pwa';
 const withPWA = nextPwa({
   dest: 'public'
 })

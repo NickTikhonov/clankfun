@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 scripts_private
+/public/sw.js
+/public/workbox-*.js
 
 # testing
 /coverage

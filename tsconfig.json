@@ -37,7 +37,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/global.d.ts"
 , "src/app/app_save.tsx.old"  ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "public"]
 }
