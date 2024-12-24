@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Web3Provider } from "./web3provider";
 
 import { Geist } from "next/font/google";
+import { PwaBanner } from "./components/PwaBanner";
 
 const geist = Geist({
   weight: "variable",
@@ -63,6 +64,7 @@ export default function RootLayout({
           <Web3Provider>
             {children}
             <Toaster />
+            <PwaBanner/>
           </Web3Provider>
         </body>
       </html>
