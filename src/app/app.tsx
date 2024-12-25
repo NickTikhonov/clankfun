@@ -478,6 +478,10 @@ export function HotFeed() {
   }, [address])
 
   async function processNewLiveTrade(ca: string) {
+    if (isCABlacklisted(ca)) {
+      console.log('Ignoring blacklisted contract address:', ca)
+      return;
+    }
     ca = ca.toLowerCase()
     const existing = clankers.find(c => c.contract_address.toLowerCase() === ca)
     if (existing) {
@@ -820,7 +824,7 @@ function NavLinks({
   className?: string
 }) {
   return (
-    <div className={`w-full max-w-[400px] flex justify-start gap-2 ${className ? className : ""}`}>
+    <div className={`w-full max-w-[400px] flex items-center justify-start gap-2 ${className ? className : ""}`}>
       <Link href="/">
         <FButton
           selected={view === "hot"}
@@ -965,6 +969,7 @@ import { LaunchView } from "./components/LaunchView";
 import { type Referral, serverFetchReferral } from "./server-referral";
 import { track } from "@vercel/analytics/react";
 import { FSnow } from "./components/FSnow";
+import { isCABlacklisted } from "~/lib/blacklist";
 
 function BuyModal({ 
   clanker, 
