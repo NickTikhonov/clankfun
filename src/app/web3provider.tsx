@@ -30,6 +30,8 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
           theme: 'dark',
           accentColor: '#676FFF',
           logo: 'https://clank.fun/logo.png',
+          walletList: ['metamask', 'wallet_connect', 'phantom', 'coinbase_wallet'],
+          walletChainType: 'ethereum-only',
         },
         walletConnectCloudProjectId: "562e09c2f744bbd6cf65d85eb7e0bb78",
         embeddedWallets: {
