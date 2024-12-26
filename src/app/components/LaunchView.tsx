@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ClankItem, Nav } from "../app";
 import { type ClankerWithData } from "../server";
 import { FInput } from "./FInput";
 import { FImageUpload } from "./FImageUpload";
@@ -10,9 +9,9 @@ import { serverCheckBalance, serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics/react";
-import { CircleCheckBigIcon, CrossIcon, DollarSign, Megaphone, Wallet, XIcon } from "lucide-react";
+import { CircleCheckBigIcon, DollarSign, Megaphone, Wallet, XIcon } from "lucide-react";
 import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
-import { FButton } from "./FButton";
+import { ClankerCard } from "./ClankerCard";
 
 export function LaunchView() {
   const { toast } = useToast()
@@ -187,7 +186,7 @@ export function LaunchView() {
           : null}
         </div>
         {hasBalance ? <div className="w-full">
-          <ClankItem c={previewClanker} noLink/>
+          <ClankerCard c={previewClanker} noLink/>
         </div> : null}
         {hasBalance ? <div className="w-full flex flex-col items-start justify-start gap-4">
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
