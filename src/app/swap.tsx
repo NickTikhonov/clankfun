@@ -1,26 +1,25 @@
 "use client"
 
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { track } from '@vercel/analytics/react';
-import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
-import { debounce } from 'lodash'; 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAccount, useBalance, useCall, useReadContract, useSendTransaction, useSignTypedData, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ethers } from "ethers";
+import { debounce } from 'lodash';
+import { Copy } from 'lucide-react';
+import { useCallback, useEffect, useState } from "react";
+import type { Address, Hex } from "viem";
 import {
   concat,
   erc20Abi,
   numberToHex,
   size,
 } from "viem";
-import type { Address, Hex } from "viem";
+import { useAccount, useBalance, useReadContract, useSendTransaction, useSignTypedData, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useToast } from "~/hooks/use-toast";
-import { FFromInput, FToInput } from "./components/FSwapper";
-import { FButton } from "./components/FButton";
-import { Button } from "~/components/ui/button";
 import { categorizeAmt } from '~/lib/analytics';
-import { Copy, ExternalLink } from 'lucide-react';
+import { FButton } from "./components/FButton";
 import { FConnectButtonLarge } from './components/FConnectButton';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { FFromInput, FToInput } from "./components/FSwapper";
+import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;

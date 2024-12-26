@@ -5,18 +5,14 @@
 
 "use client"
 
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
-import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
-import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, CoinsIcon, Link2, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Share, Users } from "lucide-react";
-import { WithTooltip } from "./components";
-import { useToast } from "~/hooks/use-toast";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, Link2, MessageCircle, Rocket, Share } from "lucide-react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { io } from 'socket.io-client';
-import moment from "moment"
+import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "~/components/ui/dialog";
+import { WithTooltip } from "./components";
+import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 
 type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail" | "portfolio"
 
@@ -746,23 +742,17 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
   );
 };
 
-import { useAccount } from "wagmi";
-import { SwapInterface } from "./swap";
-import { Input } from "~/components/ui/input";
-import { debounce, set } from "lodash";
-import { CastCard } from "./components/CastCard";
-import { ClankfunLogo } from "./components/Logo";
-import { FButton } from "./components/FButton";
-import { FConnectButton } from "./components/FConnectButton";
-import { FInput, FSearchInput } from "./components/FInput";
-import { PriceInput } from "~/components/ui/priceinput";
+import { debounce } from "lodash";
 import Link from "next/link";
-import { LaunchView } from "./components/LaunchView";
-import { type Referral, serverFetchReferral } from "./server-referral";
-import { track } from "@vercel/analytics/react";
-import { FSnow } from "./components/FSnow";
+import { useAccount } from "wagmi";
 import { isCABlacklisted } from "~/lib/blacklist";
 import { ClankerCard, ClankerCardGhost } from "./components/ClankerCard";
+import { FButton } from "./components/FButton";
+import { FConnectButton } from "./components/FConnectButton";
+import { FSearchInput } from "./components/FInput";
+import { FSnow } from "./components/FSnow";
+import { LaunchView } from "./components/LaunchView";
+import { ClankfunLogo } from "./components/Logo";
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
