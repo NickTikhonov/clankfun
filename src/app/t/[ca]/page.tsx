@@ -4,12 +4,13 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-import { Nav, TradeApp } from "~/app/app";
+import { Nav } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
 import { serverFetchCA } from "~/app/server";
 import { track } from "@vercel/analytics/server";
 import { type Metadata } from "next";
 import { type Referral, serverFetchReferralById } from "~/app/server-referral";
+import { TradeView } from "~/app/components/views/TradeView";
 
 type Params = Promise<{ca: string}>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -83,7 +84,7 @@ export default async function Page({
   return (
     <Nav refreshing={false} view="detail">
       <div className="px-2 md:px-6 flex-grow">
-        <TradeApp clanker={data} referrer={ref} />
+        <TradeView clanker={data} referrer={ref} />
       </div>
     </Nav>
   )
