@@ -1,6 +1,6 @@
 # clank.fun
 
-easily browse and trade clanker memecoins on Base
+easily browse and trade clanker memecoins on Base.
 
 ## Contribute
 
