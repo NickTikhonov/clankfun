@@ -103,12 +103,15 @@ export function SwapInterface({
   }
 
   const handlePercentageChange = (newPercentage: number) => {
-    if (newPercentage == 100 && isBuying) {
-      // If we're buying, save some ETH for gas
-      newPercentage = 98;
+    if (newPercentage == 100) {
+      if (isBuying) {
+        newPercentage = 98;
+      } else [
+        newPercentage = 99.9999
+      ]
     }
     const { eth, token } = balances();
-    const newAmount = isBuying ? eth * (newPercentage / 100) : token * (newPercentage / 100);
+    const newAmount = isBuying ? eth * (newPercentage / 100) : (token * (newPercentage / 100));
     setAmountText(String(newAmount));
   };
 
@@ -202,6 +205,7 @@ export function SwapInterface({
       onSwapComplete()
     }
     if (waitingError) {
+      console.log("Waiting error", hash, waitingError)
       toast({
         title: "Failed to clank 👎",
         description: "Your transaction has failed. Please try again.",
