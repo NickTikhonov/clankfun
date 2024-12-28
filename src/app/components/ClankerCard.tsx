@@ -6,7 +6,7 @@ import { type ClankerWithData } from "../server";
 import { motion } from 'framer-motion';
 import { WithTooltip } from "../components";
 import moment from "moment"
-import { CastCard } from "./CastCard";
+import { CastCard, ENSCard } from "./CastCard";
 
 export function ClankerCard({ 
   c, 
@@ -116,15 +116,35 @@ export function ClankerCard({
           </div>
         </div>
         <div className="item_content_line w-full"/>
-        {c.cast && !withoutCast ? (
-            <div className="item_content_user w-full">
-                <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
-                  <CastCard cast={c.cast} />
-                </a>
-            </div>
-        ) : <div className="item_content_user flex-grow"/>}
+        {!withoutCast ? (
+          <UserCard c={c} />
+        ) : 
+          <div className="item_content_user flex-grow"/>
+        }
       </div>
     </motion.a>
+  )
+}
+
+function UserCard({ c }: { c: ClankerWithData }) {
+  if (c.cast) return (
+    <div className="item_content_user w-full">
+      <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
+        <CastCard cast={c.cast} />
+      </a>
+    </div>
+  )
+
+  if (c.creator) return (
+    <div className="item_content_user w-full">
+      <a href={`https://basescan.org/address/${c.creator}`} target="_blank" rel="noopener noreferrer">
+        <ENSCard address={c.creator as any}/>
+      </a>
+    </div>
+  )
+
+  return (
+    <div className="item_content_user flex-grow"/>
   )
 }
 

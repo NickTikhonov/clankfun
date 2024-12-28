@@ -10,8 +10,10 @@ import { Alchemy, Network, Utils } from 'alchemy-sdk';
 const provider = new ethers.JsonRpcProvider(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT);
 
 import { BigNumber } from '@ethersproject/bignumber';
-import { erc20Abi } from 'viem';
+import { erc20Abi, getAddress } from 'viem';
 import { CLANKFUN_CA } from './constants';
+import { type DBClanker } from './server';
+import V2Token from './abi/ClankerTokenV2.json'
 
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
 const settings = {
@@ -102,7 +104,7 @@ function calculatePrice(sqrtPriceX96: bigint, decimalsToken0: number, decimalsTo
     return price * decimalAdjustment;
 }
 
-async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
+async function fetchTokenDataV0V1(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
   try {
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider) as any
     const poolContract = new ethers.Contract(
@@ -126,14 +128,55 @@ async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: strin
     return {
       marketCap,
       usdPrice: priceUsd,
-      decimals: intDecimals
+      decimals: intDecimals,
+      owner: null
     }
   } catch(e: any) {
     console.log(`Error fetching market cap for pool ${poolAddress}: ${e}`);
     return {
       marketCap: 0,
       usdPrice: 0,
-      decimals: 0
+      decimals: 0,
+      owner: null
+    };
+  }
+}
+
+async function fetchTokenDataV2(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
+  try {
+    const tokenContract = new ethers.Contract(tokenAddress, V2Token.abi, provider) as any
+    const poolContract = new ethers.Contract(
+      poolAddress,
+      IUniswapV3PoolABI.abi,
+      provider
+    ) as any;
+
+    const [slot0, decimals, supply, deployer] = await Promise.all([
+      poolContract.slot0(),
+      tokenContract.decimals(),
+      tokenContract.totalSupply(),
+      tokenContract.deployer()
+    ]);
+
+    const sqrtPriceX96 = slot0.sqrtPriceX96;
+    const intDecimals = parseInt(decimals.toString());
+    const intSupply = parseInt(ethers.formatUnits(supply))
+    const price = calculatePrice(sqrtPriceX96 as bigint, 18, intDecimals);
+    const priceUsd = price * ethPrice;
+    const marketCap = priceUsd * intSupply;
+    return {
+      marketCap,
+      usdPrice: priceUsd,
+      decimals: intDecimals,
+      owner: getAddress(deployer)
+    }
+  } catch(e: any) {
+    console.log(`Error fetching market cap for pool ${poolAddress}: ${e}`);
+    return {
+      marketCap: 0,
+      usdPrice: 0,
+      decimals: 0,
+      owner: null
     };
   }
 }
@@ -141,22 +184,21 @@ async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: strin
 type TokenData = {
   marketCap: number;
   usdPrice: number;
-  decimals: number
+  decimals: number;
+  owner: string | null
 }
 
-export async function fetchMultiPoolMarketCaps(poolAddresses: string[], tokenAddress: string[]): Promise<Record<string, TokenData>> {
-  // Get ETH price once for all calculations
+export async function fetchMultiPoolMarketCaps(c: DBClanker[]): Promise<Record<string, TokenData>> {
   const ethPrice = await getEthUsdPrice();
-  
-  // Fetch all pool data in parallel
-  const marketCapPromises = poolAddresses.map((address, i) => 
-    fetchSinglePoolMarketCap(tokenAddress[i]!, address, ethPrice)
-  );
-  
+  const marketCapPromises = c.map((clanker, i) => {
+    if (clanker.type = "clanker_v2") {
+      return fetchTokenDataV2(clanker.contract_address, clanker.pool_address, ethPrice)
+    } else {
+      return fetchTokenDataV0V1(clanker.contract_address, clanker.pool_address, ethPrice)
+    }
+  });
   const marketCaps = await Promise.all(marketCapPromises);
-  
-  // Create a map of pool addresses to their market caps
   return Object.fromEntries(
-    poolAddresses.map((address, index) => [address, marketCaps[index]!])
+    c.map((c, index) => [c.pool_address, marketCaps[index]!])
   );
 }

@@ -2,6 +2,8 @@
 
 import { type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2"
 import { WithTooltip } from "../components"
+import { useEnsAvatar, useEnsName } from "wagmi"
+import { useEffect } from "react"
 
 type Props = {
   cast: CastWithInteractions  
@@ -32,6 +34,96 @@ const castInfoTextStyle = {
 
 function truncate(str: string, n: number) {
   return (str.length > n) ? str.substr(0, n-1) + '...' : str;
+}
+
+function hashToRandomColorHash(val: string) {
+  let hash = 0;
+  for (let i = 0; i < val.length; i++) {
+    hash = val.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const c = (hash & 0x00FFFFFF)
+      .toString(16)
+      .toUpperCase();
+  const hue = parseInt(c.slice(0, 2), 16) / 255 * 360;
+  return `hsl(${hue}, 100%, 50%)`;
+}
+
+export function ENSCard({
+  address,
+}: {
+  address: `0x${string}`, 
+}) {
+  const { data: ensName } = useEnsName({ address })
+  const { data: ensAvatar } = useEnsAvatar({ name: ensName as string | undefined })
+
+  useEffect(() => {
+    console.log(ensName)
+  }, [ensName])
+
+  let name = address.slice(0, 6) + "..." + address.slice(-4)
+  if (ensName) {
+    name = ensName
+  }
+
+  return(
+    <div style={{
+      display: 'flex',
+      flexDirection: 'row', 
+      alignItems: 'center',
+      padding: 0,
+      gap: 8,
+      margin: '0 auto',
+      width: '100%',
+      borderRadius: 5,
+      flex: 'none',
+      alignSelf: 'stretch',
+      flexGrow: 0,
+    }}>
+      {ensAvatar ? 
+      <img src={ensAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover flex-none order-0" /> : 
+      <div
+        style={{
+          backgroundColor: hashToRandomColorHash(address),
+        }}
+        className={`w-8 h-8 rounded-full object-cover flex-none order-0`}
+      >
+      </div>}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        padding: '0px',
+        gap: '6px',
+        flex: 'none',
+        order: 1,
+        flexGrow: 1,
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          padding: '0px',
+          gap: '4px',
+          flex: 'none',
+          order: 0,
+          alignSelf: 'stretch',
+          flexGrow: 0,
+        }}>
+          <div className="text-white font-normal text-[14px] leading-[14px] flex-none order-0">
+            {name}
+          </div>
+          {/* <div className="text-white/50 font-normal text-[14px] leading-[14px] flex-none order-1">
+            @{truncate(cast.author.username ?? "", 10)}
+          </div> */}
+        </div>
+        {/* <div className="w-full">
+          {withText && (
+            cast.text  
+          )}
+        </div> */}
+      </div>
+    </div>
+  )
 }
 
 export function CastCard({

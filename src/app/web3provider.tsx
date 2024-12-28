@@ -2,6 +2,7 @@
 
 import {
   base,
+  mainnet
 } from 'wagmi/chains';
 import { http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,9 +13,10 @@ import { createConfig } from '@privy-io/wagmi';
 import { WagmiProvider } from '@privy-io/wagmi';
 
 const config = createConfig({
-  chains: [base],
+  chains: [mainnet, base],
   transports: {
     [base.id]: http(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT),
+    [mainnet.id]: http(),
   }
 });
 

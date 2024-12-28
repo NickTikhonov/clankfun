@@ -30,6 +30,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: z.string(),
+    NEXT_PUBLIC_ALCHEMY_ETH_ENDPOINT: z.string(),
     NEXT_PUBLIC_PRIVY_APP_ID: z.string(),
   },
 
@@ -41,6 +42,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEYNAR_API_KEY: process.env.NEYNAR_API_KEY,
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT,
+    NEXT_PUBLIC_ALCHEMY_ETH_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_ETH_ENDPOINT,
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     OX_API_KEY: process.env.OX_API_KEY,
     FEE_RECIPIENT: process.env.FEE_RECIPIENT,

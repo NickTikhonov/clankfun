@@ -17,10 +17,33 @@ import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 import Redis from 'ioredis';
 import { clankerRewardsUSDAPI, clankerRewardsUSDAPIBatched } from '~/lib/clanker';
+import { CLANKFUN_CAST_HASH } from './constants';
 
 const redis = new Redis(env.REDIS_URL);
 
 const CACHE_EXPIRATION_SECONDS = 60; // 1 minutes
+
+const CACHE_DISABLED = true;
+
+async function cached(key: string): Promise<any> {
+  if (CACHE_DISABLED) {
+    return null;
+  }
+  const cachedResult = await redis.get(key);
+  if (cachedResult) {
+    console.log(`Cache hit for ${key}`);
+    return JSON.parse(cachedResult);
+  }
+  return null;
+}
+
+async function cacheSet(key: string, value: any, expirationSeconds: number = CACHE_EXPIRATION_SECONDS) {
+  if (CACHE_DISABLED) {
+    return;
+  }
+  await redis.set(key, JSON.stringify(value), 'EX', expirationSeconds);
+}
+
 
 const ClankerSchema = z.object({
   id: z.number(),
@@ -43,9 +66,10 @@ export type ClankerWithData = Clanker & {
   priceUsd: number,
   rewardsUSD?: number,
   cast: CastWithInteractions | null 
+  creator?: string
 }
 
-type DBClanker = {
+export type DBClanker = {
   symbol: string;
   type: string | null;
   name: string;
@@ -66,11 +90,10 @@ async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
   }
 
   const poolAddresses = c.map(d => d.pool_address).filter(h => h !== null)
-  const contractAddresses = c.map(d => d.contract_address).filter(h => h !== null)
   const castHashes = c.map(d => d.cast_hash).filter(h => h !== null)
 
   const [mcaps, casts, rewards] = await Promise.all([
-    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
+    fetchMultiPoolMarketCaps(c),
     fetchCastsNeynar(castHashes),
     clankerRewardsUSDAPIBatched(poolAddresses)
   ])
@@ -92,15 +115,11 @@ async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
       rewardsUSD: rewards[clanker.pool_address] ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
-      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
+      creator: mcaps[clanker.pool_address]?.owner ?? undefined
     }
   })
   return res
-}
-
-type ClankerResponse = {
-  data: ClankerWithData[];
-  lastPage: number;
 }
 
 export async function serverFetchSwapQuote(userAddress: string, tokenAddress: string, amount: number, isSell: boolean, refAddress?: string) {
@@ -153,10 +172,9 @@ export async function serverFetchBalance(address?: string) {
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
   const cacheKey = `hotclankers`;
-  const cachedResult = await redis.get(cacheKey);
+  const cachedResult = await cached(cacheKey);
   if (cachedResult) {
-    console.log(`Clanker cache hit for ${cacheKey}`);
-    return JSON.parse(cachedResult);
+    return cachedResult
   }
 
   const hotClankers = await getHotClankersCA()
@@ -172,7 +190,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
   })
 
   const res = await embueClankers(dbClankers)
-  await redis.set(cacheKey, JSON.stringify(res), "EX", 60 * 10);
+  await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
 
@@ -221,10 +239,9 @@ export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
 export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   ca = ca.toLowerCase()
   const cacheKey = `clanker:${ca}`;
-  const cachedResult = await redis.get(cacheKey);
+  const cachedResult = await cached(cacheKey);
   if (cachedResult) {
-    console.log(`Clanker cache hit for ${cacheKey}`);
-    return JSON.parse(cachedResult);
+    return cachedResult
   }
   const clanker = await db.clanker.findFirst({
     where: {
@@ -234,47 +251,19 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   if (!clanker) {
     throw new Error("CA not found in database")
   }
-  const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
-  const rewards = await clankerRewardsUSDAPI(clanker.pool_address)
-  let cast = null
-  try {
-    if (clanker.cast_hash) {
-      cast = (await fetchCastsNeynar([clanker.cast_hash]))[0]
-    }
-  } catch(e) {
-    console.log(`Error fetching cast for ${clanker.cast_hash}`)
+  const embued = await embueClankers([clanker])
+  if (embued.length !== 1) {
+    throw new Error("Failed to fetch clanker data")
   }
-  if (!data[clanker.pool_address]) {
-    throw new Error("CA data not found")
-  }
-  const res = {
-    id: clanker.id,
-    created_at: clanker.created_at.toString(),
-    tx_hash: clanker.tx_hash,
-    contract_address: clanker.contract_address,
-    requestor_fid: clanker.requestor_fid,
-    name: clanker.name,
-    symbol: clanker.symbol,
-    img_url: clanker.img_url,
-    pool_address: clanker.pool_address,
-    cast_hash: clanker.cast_hash,
-    type: clanker.type ?? "unknown",
-    marketCap: data[clanker.pool_address]?.marketCap ?? -1,
-    priceUsd: data[clanker.pool_address]?.usdPrice ?? -1,
-    decimals: data[clanker.pool_address]?.decimals ?? -1,
-    rewardsUSD: rewards ?? -1,
-    cast: cast ?? null
-  } 
-  await redis.set(cacheKey, JSON.stringify(res), "EX", CACHE_EXPIRATION_SECONDS);
-  return res
+  await cacheSet(cacheKey, embued[0]!, CACHE_EXPIRATION_SECONDS);
+  return embued[0]!
 }
 
 export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   const cacheKey = `topclankers`;
-  const cachedResult = await redis.get(cacheKey);
+  const cachedResult = await cached(cacheKey);
   if (cachedResult) {
-    console.log(`Clanker cache hit for ${cacheKey}`);
-    return JSON.parse(cachedResult);
+    return cachedResult
   }
 
   const topDune = await getTopClankersCA()
@@ -290,7 +279,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   })
 
   const res = (await embueClankers(dbClankers)).sort((a, b) => b.marketCap - a.marketCap)
-  await redis.set(cacheKey, JSON.stringify(res), "EX", 60 * 10);
+  await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
 
@@ -324,7 +313,10 @@ export async function fetchParentCast(hash: string) {
 }
 
 async function fetchCastsNeynar(hashes: string[]) {
-  hashes = hashes.filter(h => h !== "clank.fun deployment")
+  hashes = hashes.filter(h => h !== CLANKFUN_CAST_HASH)
+  if (hashes.length === 0) {
+    return []
+  }
   const neynar = new NeynarAPIClient(env.NEYNAR_API_KEY);
   const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
   return castData
