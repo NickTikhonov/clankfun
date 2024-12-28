@@ -105,6 +105,7 @@ function calculatePrice(sqrtPriceX96: bigint, decimalsToken0: number, decimalsTo
 }
 
 async function fetchTokenDataV0V1(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
+  // console.log(`V0/V1: Fetching market cap for pool ${poolAddress}`);
   try {
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider) as any
     const poolContract = new ethers.Contract(
@@ -143,6 +144,7 @@ async function fetchTokenDataV0V1(tokenAddress: string, poolAddress: string, eth
 }
 
 async function fetchTokenDataV2(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
+  // console.log(`V2: Fetching market cap for pool ${poolAddress}`);
   try {
     const tokenContract = new ethers.Contract(tokenAddress, V2Token.abi, provider) as any
     const poolContract = new ethers.Contract(
@@ -191,7 +193,7 @@ type TokenData = {
 export async function fetchMultiPoolMarketCaps(c: DBClanker[]): Promise<Record<string, TokenData>> {
   const ethPrice = await getEthUsdPrice();
   const marketCapPromises = c.map((clanker, i) => {
-    if (clanker.type = "clanker_v2") {
+    if (clanker.type === "clanker_v2") {
       return fetchTokenDataV2(clanker.contract_address, clanker.pool_address, ethPrice)
     } else {
       return fetchTokenDataV0V1(clanker.contract_address, clanker.pool_address, ethPrice)
