@@ -117,7 +117,9 @@ export function ClankerCard({
         </div>
         <div className="item_content_line w-full"/>
         {!withoutCast ? (
-          <UserCard c={c} />
+          <div className="item_content_user w-full">
+            <UserCard c={c} />
+          </div>
         ) : 
           <div className="item_content_user flex-grow"/>
         }
@@ -128,19 +130,15 @@ export function ClankerCard({
 
 export function UserCard({ c }: { c: ClankerWithData }) {
   if (c.cast) return (
-    <div className="item_content_user w-full">
-      <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
-        <CastCard cast={c.cast} />
-      </a>
-    </div>
+    <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer">
+      <CastCard cast={c.cast} />
+    </a>
   )
 
   if (c.creator) return (
-    <div className="item_content_user w-full">
-      <a href={`https://basescan.org/address/${c.creator}`} target="_blank" rel="noopener noreferrer">
-        <ENSCard address={c.creator as any}/>
-      </a>
-    </div>
+    <a href={`https://basescan.org/address/${c.creator}`} target="_blank" rel="noopener noreferrer">
+      <ENSCard address={c.creator as any}/>
+    </a>
   )
 
   return (

@@ -115,7 +115,7 @@ export function TradeView({
             </div>
           </div>
         </div>
-        <div>
+        <div className="w-full">
           <UserCard c={clanker} />
         </div>
         {/* {clanker.cast && 
