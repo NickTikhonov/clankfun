@@ -18,6 +18,7 @@ import { db } from '~/lib/db';
 import Redis from 'ioredis';
 import { clankerRewardsUSDAPI, clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 import { CLANKFUN_CAST_HASH } from './constants';
+import { isCABlacklisted } from '~/lib/blacklist';
 
 const redis = new Redis(env.REDIS_URL);
 
@@ -84,6 +85,7 @@ export type DBClanker = {
 }
 
 async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
+  c = c.filter(d => isCABlacklisted(d.contract_address) === false)
   if (c.length === 0) {
     return []
   }
