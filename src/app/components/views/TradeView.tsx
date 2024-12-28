@@ -14,6 +14,7 @@ import { track } from "@vercel/analytics/react";
 import { FInput } from "../FInput";
 import { CastCard } from "../CastCard";
 import { formatPrice } from "~/lib/utils";
+import { UserCard } from "../ClankerCard";
 
 export function TradeView({
   clanker,
@@ -114,11 +115,14 @@ export function TradeView({
             </div>
           </div>
         </div>
-        {clanker.cast && 
+        <div>
+          <UserCard c={clanker} />
+        </div>
+        {/* {clanker.cast && 
         <a href={`https://warpcast.com/${clanker.cast.author.username}/${clanker.cast.hash.slice(0, 10)}`} target="_blank" rel="noreferrer">
           <CastCard cast={clanker.cast} withText/>
         </a>
-        }
+        } */}
         {referTrade && <div className="p-2 flex flex-col gap-2 bg-white/10 rounded-xl w-full md:max-w-[360px]">
           <div className="flex gap-2 items-center">
             <p className="text-lg font-bold">

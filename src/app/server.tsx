@@ -23,8 +23,7 @@ const redis = new Redis(env.REDIS_URL);
 
 const CACHE_EXPIRATION_SECONDS = 60; // 1 minutes
 
-const CACHE_DISABLED = true;
-
+const CACHE_DISABLED = false;
 async function cached(key: string): Promise<any> {
   if (CACHE_DISABLED) {
     return null;

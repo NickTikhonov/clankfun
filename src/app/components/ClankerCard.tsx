@@ -126,7 +126,7 @@ export function ClankerCard({
   )
 }
 
-function UserCard({ c }: { c: ClankerWithData }) {
+export function UserCard({ c }: { c: ClankerWithData }) {
   if (c.cast) return (
     <div className="item_content_user w-full">
       <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
