@@ -183,7 +183,7 @@ function SearchResults({ query }: { query: string }) {
         </div>
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {clankers.map((item, i) => (
+        {filterBlacklisted(clankers).map((item, i) => (
           <ClankerCard 
             key={i} 
             c={item} 
@@ -342,7 +342,7 @@ export function Portfolio() {
         <Loader text="Loading top clankers"  />
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {clankers.map((item, i) => (
+        {filterBlacklistedWithBlanace(clankers).map((item, i) => (
           <ClankerCard 
             key={i} 
             c={item} 
@@ -395,7 +395,7 @@ export function TopFeed() {
         <Loader text="Loading top clankers"  />
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {clankers.map((item, i) => (
+        {filterBlacklisted(clankers).map((item, i) => (
           <ClankerCard 
             key={i} 
             c={item} 
@@ -432,7 +432,7 @@ export function HotFeed() {
     if (isHover) {
       return;
     }
-    setDispClankers(clankers)
+    setDispClankers(filterBlacklisted(clankers))
   }, [clankers, isHover])
 
   useEffect(() => {
@@ -745,7 +745,7 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
 import { debounce } from "lodash";
 import Link from "next/link";
 import { useAccount } from "wagmi";
-import { isCABlacklisted } from "~/lib/blacklist";
+import { filterBlacklisted, filterBlacklistedWithBlanace, isCABlacklisted } from "~/lib/blacklist";
 import { ClankerCard, ClankerCardGhost } from "./components/ClankerCard";
 import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
@@ -753,6 +753,7 @@ import { FSearchInput } from "./components/FInput";
 import { FSnow } from "./components/FSnow";
 import { LaunchView } from "./components/LaunchView";
 import { ClankfunLogo } from "./components/Logo";
+import { usePrivy } from '@privy-io/react-auth';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

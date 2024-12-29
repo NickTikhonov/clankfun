@@ -7,7 +7,7 @@ import { Button } from "~/components/ui/button";
 import { FInput } from "./FInput";
 
 export const FConnectButton = () => {
-  const { authenticated, user, login, logout } = usePrivy();
+  const { authenticated, user, login, logout, exportWallet } = usePrivy();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -39,11 +39,12 @@ export const FConnectButton = () => {
               <FInput value={user?.wallet?.address ?? ""} onChange={() => void 0} placeholder=""/>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCancelLogout}>
+          <DialogFooter className="gap-0.5">
+            <Button size="sm" variant="outline" onClick={handleCancelLogout}>
               Cancel
             </Button>
-            <Button onClick={handleConfirmLogout}>Logout</Button>
+            {user?.email && <Button size="sm" onClick={exportWallet}>Export Wallet</Button>}
+            <Button size="sm" onClick={handleConfirmLogout}>Logout</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -21,6 +21,7 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: z.string(),
     TELEGRAM_API_KEY: z.string(),
     PRIVY_APP_SECRET: z.string(),
+    CACHE_DISABLED: z.boolean()
   },
 
   /**
@@ -56,6 +57,7 @@ export const env = createEnv({
     TELEGRAM_API_KEY: process.env.TELEGRAM_API_KEY,
     NEXT_PUBLIC_PRIVY_APP_ID: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
     PRIVY_APP_SECRET: process.env.PRIVY_APP_SECRET,
+    CACHE_DISABLED: process.env.CACHE_DISABLED == "true"
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
