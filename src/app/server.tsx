@@ -61,7 +61,8 @@ const ClankerSchema = z.object({
 });
 
 export type Clanker = z.infer<typeof ClankerSchema>
-export type ClankerWithData = Clanker & { 
+
+type ClankerMarketData = {
   marketCap: number, 
   decimals: number,
   priceUsd: number,
@@ -69,6 +70,8 @@ export type ClankerWithData = Clanker & {
   cast: CastWithInteractions | null 
   creator?: string
 }
+
+export type ClankerWithData = Clanker & ClankerMarketData
 
 export type DBClanker = {
   symbol: string;
