@@ -19,6 +19,7 @@ import Redis from 'ioredis';
 import { clankerRewardsUSDAPI, clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 import { CLANKFUN_CAST_HASH } from './constants';
 import { isCABlacklisted } from '~/lib/blacklist';
+import { uniswapTokensVolume,uniswapTokenTxCount } from '~/lib/uniswap';
 
 const redis = new Redis(env.REDIS_URL);
 
@@ -97,13 +98,17 @@ async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
   const poolAddresses = c.map(d => d.pool_address).filter(h => h !== null)
   const castHashes = c.map(d => d.cast_hash).filter(h => h !== null)
 
-  const [mcaps, casts, rewards] = await Promise.all([
+  const [mcaps, casts, rewards, tokensVolumeData, tokensTxCountData] = await Promise.all([
     fetchMultiPoolMarketCaps(c),
     fetchCastsNeynar(castHashes),
-    clankerRewardsUSDAPIBatched(poolAddresses)
+    clankerRewardsUSDAPIBatched(poolAddresses),
+    uniswapTokensVolume(c),
+    uniswapTokenTxCount(c)
   ])
 
   const res = c.map((clanker, i) => {
+    const volumeData = tokensVolumeData[`token${i}`]
+    const txCountData = tokensTxCountData[`token${i}`]
     return {
       id: clanker.id,
       created_at: clanker.created_at.toString(),
@@ -121,7 +126,9 @@ async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
       rewardsUSD: rewards[clanker.pool_address] ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
-      creator: mcaps[clanker.pool_address]?.owner ?? undefined
+      creator: mcaps[clanker.pool_address]?.owner ?? undefined,
+      volume24H : volumeData?.volume24H || 0,
+      txCount: txCountData?.txCount || 0
     }
   })
   return res
