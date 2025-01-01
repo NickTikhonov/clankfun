@@ -17,7 +17,7 @@ import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 import Redis from 'ioredis';
 import { clankerRewardsUSDAPIBatched } from '~/lib/clanker';
-import { CLANKFUN_CAST_HASH } from './constants';
+import { isValidCastHash } from './constants';
 import { isCABlacklisted } from '~/lib/blacklist';
 
 const redis = new Redis(env.REDIS_URL);
@@ -318,7 +318,8 @@ export async function fetchParentCast(hash: string) {
 }
 
 async function fetchCastsNeynar(hashes: string[]) {
-  hashes = hashes.filter(h => h !== CLANKFUN_CAST_HASH)
+  hashes = hashes.filter(h => isValidCastHash(h))
+  console.log("FETCHING", hashes)
   if (hashes.length === 0) {
     return []
   }
