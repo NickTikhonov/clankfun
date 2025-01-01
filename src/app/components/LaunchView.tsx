@@ -136,7 +136,7 @@ export function LaunchView() {
   } as ClankerWithData
 
   const hasBalance = balance && required && balance >= required
-  const noBalance = balance && required && balance < required
+  const noBalance = (balance !== null) && required && balance < required
 
   return (
     <div className="grid place-items-center">
