@@ -5,10 +5,13 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { FInput } from "./FInput";
+import { useAccount } from "wagmi";
 
 export const FConnectButton = () => {
   const { authenticated, user, login, logout, exportWallet } = usePrivy();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const account = useAccount()
 
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
@@ -39,6 +42,9 @@ export const FConnectButton = () => {
               <FInput value={user?.wallet?.address ?? ""} onChange={() => void 0} placeholder=""/>
             </div>
           </div>
+          <pre>
+            {JSON.stringify(account.addresses, null, 2)}
+          </pre>
           <DialogFooter className="gap-0.5">
             <Button size="sm" variant="outline" onClick={handleCancelLogout}>
               Cancel

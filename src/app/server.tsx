@@ -16,7 +16,7 @@ import { getQuote, getSwapPrice } from '~/lib/0x';
 import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 import Redis from 'ioredis';
-import { clankerRewardsUSDAPI, clankerRewardsUSDAPIBatched } from '~/lib/clanker';
+import { clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 import { CLANKFUN_CAST_HASH } from './constants';
 import { isCABlacklisted } from '~/lib/blacklist';
 
@@ -323,6 +323,11 @@ async function fetchCastsNeynar(hashes: string[]) {
     return []
   }
   const neynar = new NeynarAPIClient(env.NEYNAR_API_KEY);
-  const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
-  return castData
+  try {
+    const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
+    return castData
+  } catch (e) {
+    console.error(e)
+    return []
+  }
 }
