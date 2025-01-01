@@ -21,7 +21,9 @@ export const env = createEnv({
     UPLOADTHING_TOKEN: z.string(),
     TELEGRAM_API_KEY: z.string(),
     PRIVY_APP_SECRET: z.string(),
-    CACHE_DISABLED: z.boolean()
+    CACHE_DISABLED: z.boolean(),
+    UNISWAP_GRAPH_URL : z.string(),
+    UNISWAP_INTERFACE_URL : z.string()
   },
 
   /**
@@ -40,6 +42,8 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    UNISWAP_INTERFACE_URL: process.env.UNISWAP_INTERFACE_URL,
+    UNISWAP_GRAPH_URL : process.env.UNISWAP_GRAPH_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEYNAR_API_KEY: process.env.NEYNAR_API_KEY,
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT,
