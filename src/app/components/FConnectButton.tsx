@@ -42,9 +42,6 @@ export const FConnectButton = () => {
               <FInput value={user?.wallet?.address ?? ""} onChange={() => void 0} placeholder=""/>
             </div>
           </div>
-          <pre>
-            {JSON.stringify(account.addresses, null, 2)}
-          </pre>
           <DialogFooter className="gap-0.5">
             <Button size="sm" variant="outline" onClick={handleCancelLogout}>
               Cancel
