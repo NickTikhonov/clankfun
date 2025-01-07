@@ -12,7 +12,7 @@ model Clanker {
   id               Int      @id
   created_at       DateTime
   tx_hash          String
-  contract_address String   @unique       // must be stored lowercased
+  contract_address String   @unique // must be stored lowercased
   requestor_fid    Int
   name             String
   symbol           String
@@ -22,14 +22,22 @@ model Clanker {
   type             String?
   page             Int // this is used for scraping. sometimes set to -1 on get style scrape.
 
+  i_mcap_usd      Float?
+  i_decimals      Int?
+  i_price_usd     Float?
+  i_rewards_usd   Float?
+  i_cast          Json?
+  i_owner_address String?
+  i_updated_at    DateTime?
+
   @@index([contract_address])
 }
 
 model TradeReferral {
-  id              String   @id @default(cuid())
+  id              String @id @default(cuid())
   walletAddress   String
   contractAddress String
-  numTrades       Int      @default(0)
+  numTrades       Int    @default(0)
 
   @@unique([walletAddress, contractAddress])
   @@index([walletAddress, contractAddress])
