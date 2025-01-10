@@ -272,19 +272,44 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
     return cachedResult
   }
 
-  const topDune = await getTopClankersCA()
+  console.log("NEWWWWWWW")
   const dbClankers = await db.clanker.findMany({
     where: {
-      contract_address: {
-        in: topDune.map(c => c.toLowerCase())
-      },
+      i_updated_at: {
+        not: null
+      }
     },
     orderBy: {
-      contract_address: 'asc'
+      i_mcap_usd: 'desc'
+    },
+    take: 20
+  })
+
+  const res: ClankerWithData[] =  dbClankers.map((c) => {
+    let cast: CastWithInteractions | null = null
+    if (c.i_cast !== null) {
+      cast = JSON.parse(c.i_cast)
+    }
+    return {
+      id: c.id,
+      created_at: c.created_at.toString(),
+      tx_hash: c.tx_hash,
+      contract_address: c.contract_address,
+      requestor_fid: c.requestor_fid,
+      name: c.name,
+      symbol: c.symbol,
+      img_url: c.img_url,
+      pool_address: c.pool_address,
+      cast_hash: c.cast_hash,
+      type: c.type ?? "unknown",
+      marketCap: c.i_mcap_usd ?? 0,
+      priceUsd: c.i_price_usd ?? 0,
+      rewardsUSD: c.i_rewards_usd ?? 0,
+      decimals: c.i_decimals ?? 18,
+      cast: cast
     }
   })
 
-  const res = (await embueClankers(dbClankers)).sort((a, b) => b.marketCap - a.marketCap)
   await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
