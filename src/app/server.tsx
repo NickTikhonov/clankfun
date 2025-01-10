@@ -88,7 +88,8 @@ export type DBClanker = {
   page: number;
 }
 
-async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
+// Deprecated: this is being replaced with the indexer (/api/index)
+export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
   c = c.filter(d => isCABlacklisted(d.contract_address) === false)
   if (c.length === 0) {
     return []
@@ -319,7 +320,6 @@ export async function fetchParentCast(hash: string) {
 
 async function fetchCastsNeynar(hashes: string[]) {
   hashes = hashes.filter(h => isValidCastHash(h))
-  console.log("FETCHING", hashes)
   if (hashes.length === 0) {
     return []
   }

@@ -23,10 +23,12 @@ model Clanker {
   page             Int // this is used for scraping. sometimes set to -1 on get style scrape.
 
   i_mcap_usd      Float?
+  i_volume_usd    Float?
+  i_trades        Int?
   i_decimals      Int?
   i_price_usd     Float?
   i_rewards_usd   Float?
-  i_cast          Json?
+  i_cast          String?
   i_owner_address String?
   i_updated_at    DateTime?
 
