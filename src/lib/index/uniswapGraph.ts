@@ -37,9 +37,9 @@ function qk(ca: string) {
   return `token${ca}`;
 }
 
-function buildTokenQuery(ca: string) {
+function buildTokenQuery(ca: string, blockNumber?: number) {
   return `
-${qk(ca)}: token(id:"${ca.toLowerCase()}") {
+${qk(ca)}: token(id:"${ca.toLowerCase()}"${blockNumber ? `, block: {number: ${blockNumber}}` : ""}) {
   id,
   whitelistPools(orderBy:createdAtBlockNumber, orderDirection:asc, first: 1) {
     id,
@@ -65,10 +65,11 @@ ${qk(ca)}: token(id:"${ca.toLowerCase()}") {
 
 export async function fetchGraphUniswapBaseData(
   cas: string[],
+  blockNumber?: number,
 ) {
   let queryBody = ``;
   cas.forEach((c) => {
-    queryBody += buildTokenQuery(c);
+    queryBody += buildTokenQuery(c, blockNumber);
   });
   const queryObject = `{
     ${queryBody}

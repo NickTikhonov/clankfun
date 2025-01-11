@@ -32,6 +32,10 @@ model Clanker {
   i_owner_address String?
   i_updated_at    DateTime?
 
+  i_24h_volume        Float?
+  i_30d_volume        Float?
+  i_volume_updated_at DateTime?
+
   @@index([contract_address])
 }
 

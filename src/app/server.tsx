@@ -272,7 +272,6 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
     return cachedResult
   }
 
-  console.log("NEWWWWWWW")
   const dbClankers = await db.clanker.findMany({
     where: {
       i_updated_at: {
