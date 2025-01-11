@@ -57,7 +57,7 @@ export function TradeView({
   return (
     <div className="h-full w-full flex flex-col lg:flex-row gap-4">
       {clanker?.pool_address && <iframe 
-        className="hidden lg:block rounded-lg w-full h-[700px]"
+        className="rounded-lg w-full h-[400px] md:h-[700px] order-2 md:order-1"
         id="geckoterminal-embed" 
         title="GeckoTerminal Embed" 
         src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=1&grayscale=0&light_chart=0`}
@@ -65,7 +65,7 @@ export function TradeView({
         style={{ height: `calc(100vh - 150px)` }}
       >
       </iframe>}
-      <div className="flex flex-col gap-4 lg:w-[350px] flex-none">
+      <div className="flex flex-col gap-4 lg:w-[350px] flex-none order-1 md:order-2">
         <div className="h-20 justify-start items-center gap-3 inline-flex">
           {clanker.img_url ? 
           <img className="w-20 h-20 relative rounded-[3px] border border-white/5" src={clanker.img_url ?? ""} />
