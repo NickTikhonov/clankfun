@@ -1,3 +1,6 @@
+export const maxDuration = 300; // This function can run for a maximum of 5 seconds
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { embueClankers } from '~/app/server';
