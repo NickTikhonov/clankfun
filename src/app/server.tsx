@@ -343,7 +343,7 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
 
 export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
   const updateThreshold = new Date(Date.now() - 1000 * 60 * 60 * 2)
-  const launchThreshold = new Date(Date.now() - 1000 * 60 * 60 * 1)
+  const launchThreshold = new Date(Date.now() - 1000 * 60 * 60 * 3)
   const dbClankers = await db.clanker.findMany({
     where: {
       created_at: {
