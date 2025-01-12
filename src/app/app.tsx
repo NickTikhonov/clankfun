@@ -642,7 +642,6 @@ export function Nav({
       <div className="fixed bottom-0 left-0 w-full bg-[#090F11] z-[9] p-2 md:hidden flex justify-center pb-4">
         <NavLinks view={view} className="md:hidden justify-center"/>
       </div>
-      <FSnow />
     </div>
   )
 }
