@@ -290,8 +290,8 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   return embued[0]!
 }
 
-export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
-  const cacheKey = `topclankers-2`;
+export async function serverFetchTopClankers(clankfun?: boolean): Promise<ClankerWithData[]> {
+  const cacheKey = clankfun ? `topclankers-cf-2` : `topclankers-2`;
   const cachedResult = await cached(cacheKey);
   if (cachedResult) {
     return cachedResult
@@ -301,7 +301,10 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
     where: {
       i_updated_at: {
         not: null
-      }
+      },
+      cast_hash: clankfun ? {
+        equals: 'clank.fun deployment'
+      } : undefined
     },
     orderBy: {
       i_mcap_usd: 'desc'
@@ -335,6 +338,53 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   })
 
   await cacheSet(cacheKey, res, 60 * 10);
+  return res
+}
+
+export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
+  const updateThreshold = new Date(Date.now() - 1000 * 60 * 60 * 2)
+  const launchThreshold = new Date(Date.now() - 1000 * 60 * 60 * 1)
+  const dbClankers = await db.clanker.findMany({
+    where: {
+      created_at: {
+        gte: launchThreshold
+      },
+      i_mcap_usd: {
+        gt: 0
+      }
+    },
+    orderBy: {
+      i_mcap_usd: 'desc'
+    },
+    take: 30
+  })
+  console.log(`Found ${dbClankers.length} clankers with updated volume in the last 3 hours`)
+
+  const res: ClankerWithData[] =  dbClankers.map((c) => {
+    let cast: CastWithInteractions | null = null
+    if (c.i_cast !== null) {
+      cast = JSON.parse(c.i_cast)
+    }
+    return {
+      id: c.id,
+      created_at: c.created_at.toString(),
+      tx_hash: c.tx_hash,
+      contract_address: c.contract_address,
+      requestor_fid: c.requestor_fid,
+      name: c.name,
+      symbol: c.symbol,
+      img_url: c.img_url,
+      pool_address: c.pool_address,
+      cast_hash: c.cast_hash,
+      type: c.type ?? "unknown",
+      marketCap: c.i_mcap_usd ?? 0,
+      priceUsd: c.i_price_usd ?? 0,
+      rewardsUSD: c.i_rewards_usd ?? 0,
+      decimals: c.i_decimals ?? 18,
+      cast: cast
+    }
+  })
+
   return res
 }
 

@@ -12,7 +12,7 @@ import { io } from 'socket.io-client';
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "~/components/ui/dialog";
 import { WithTooltip } from "./components";
-import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatest3hVolume, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 
 type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail" | "portfolio"
 
@@ -206,6 +206,7 @@ function SearchResults({ query }: { query: string }) {
 
 export function LatestFeed() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [view, setView] = useState<"latest" | "1hvolume">("1hvolume")
   const [refreshing, setRefreshing] = useState(false);
   const [nextCursor, setNextCursor] = useState<number | undefined>(1);
 
@@ -215,9 +216,15 @@ export function LatestFeed() {
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
-      const res = await serverFetchLatestClankers();
-      setClankers(res.data);
-      setNextCursor(res.nextCursor);
+      if (view === "latest") {
+        const res = await serverFetchLatestClankers();
+        setClankers(res.data);
+        setNextCursor(res.nextCursor);
+      } else {
+        const res = await serverFetchLatest3hVolume();
+        setClankers(res);
+        setNextCursor(1)
+      }
       setRefreshing(false);
     };
 
@@ -231,9 +238,10 @@ export function LatestFeed() {
     return () => {
       clearInterval(interval)
     }
-  }, []);
+  }, [view]);
 
   async function periodFetchLatest() {
+    if (view !== "latest") return
     const res = await serverFetchLatestClankers();
     setClankers((prevClankers) => mergeFront(prevClankers, res.data));
   }
@@ -271,6 +279,23 @@ export function LatestFeed() {
 
   return (
     <div className="w-full">
+      <div className='flex items-center gap-2 mb-2 ml-2'>
+        <p className='text-sm'>
+          show:
+        </p>
+        <FButton
+          selected={view === "1hvolume"}
+          onClick={() => setView("1hvolume")}
+        >
+          top of the hour
+        </FButton>
+        <FButton
+          selected={view === "latest"}
+          onClick={() => setView("latest")}
+        > 
+          latest
+        </FButton>
+      </div>
       {clankers.length === 0 && (
         <Loader text="Loading new clankers" />
       )}
@@ -357,6 +382,7 @@ export function Portfolio() {
 
 export function TopFeed() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [view, setView] = useState<"all" | "clankfun">("all")
   const [refreshing, setRefreshing] = useState(false);
 
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
@@ -376,13 +402,13 @@ export function TopFeed() {
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
-      const data = await serverFetchTopClankers();
+      const data = await serverFetchTopClankers(view === "clankfun" ? true : undefined);
       setClankers(data);
       setRefreshing(false);
     };
 
     void fetchClankers();
-  }, []);
+  }, [view]);
 
   function onApe(clanker: ClankerWithData, eth: number) {
     setApeAmount(eth)
@@ -391,6 +417,23 @@ export function TopFeed() {
 
   return (
     <div className="w-full">
+      <div className='flex items-center gap-2 mb-2 ml-2'>
+        <p className='text-sm'>
+          show:
+        </p>
+        <FButton
+          selected={view === "all"}
+          onClick={() => setView("all")}
+        > 
+          all
+        </FButton>
+        <FButton
+          selected={view === "clankfun"}
+          onClick={() => setView("clankfun")}
+        >
+          clank.fun
+        </FButton>
+      </div>
       {clankers.length === 0 && (
         <Loader text="Loading top clankers"  />
       )}
