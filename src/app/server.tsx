@@ -178,7 +178,7 @@ export async function serverFetchBalance(address?: string) {
 }
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
-  const cacheKey = `hotclankers-2`;
+  const cacheKey = `hotclankers-3`;
   const cachedResult = await cached(cacheKey);
   if (cachedResult) {
     return cachedResult
