@@ -9,7 +9,6 @@ import { env } from '~/env';
 import { getClankfunBalance } from './onchain';
 import wordfilter from "wordfilter"
 import { CLANKFUN_BALANCE_GATE } from './constants';
-import { announceNewTokenOnTelegram } from '~/lib/telegram';
 
 export async function serverCheckBalance(address: string) {
   const balance = await getClankfunBalance(address)
