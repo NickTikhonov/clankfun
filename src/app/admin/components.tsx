@@ -34,7 +34,7 @@ export function AdminView() {
   const handleMarkNsfw = async (nsfw: boolean) => {
     setProcessing(true);
     try {
-      await adminSetNSFW(adminSecret, nsfwCA, true);
+      await adminSetNSFW(adminSecret, nsfwCA, nsfw);
       toast({
         title: "Token updated",
         description: `Token ${nsfwCA} was successfully updated`,
