@@ -67,6 +67,7 @@ type ClankerMarketData = {
   rewardsUSD?: number,
   cast: CastWithInteractions | null 
   creator?: string
+  nsfw: boolean
 }
 
 export type ClankerWithData = Clanker & ClankerMarketData
@@ -84,6 +85,7 @@ export type DBClanker = {
   pool_address: string;
   cast_hash: string | null;
   page: number;
+  nsfw: boolean;
 }
 
 // Deprecated: this is being replaced with the indexer (/api/index)
@@ -120,7 +122,8 @@ export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> 
       rewardsUSD: rewards[clanker.pool_address] ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
-      creator: mcaps[clanker.pool_address]?.owner ?? undefined
+      creator: mcaps[clanker.pool_address]?.owner ?? undefined,
+      nsfw: clanker.nsfw
     }
   })
   return res
@@ -215,7 +218,8 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       priceUsd: c.i_price_usd ?? 0,
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
-      cast: cast
+      cast: cast,
+      nsfw: c.nsfw
     }
   })
 
@@ -331,7 +335,8 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
       priceUsd: c.i_price_usd ?? 0,
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
-      cast: cast
+      cast: cast,
+      nsfw: c.nsfw
     }
   })
 
@@ -379,7 +384,8 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
       priceUsd: c.i_price_usd ?? 0,
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
-      cast: cast
+      cast: cast,
+      nsfw: c.nsfw
     }
   })
 

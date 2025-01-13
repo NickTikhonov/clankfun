@@ -95,6 +95,9 @@ export function AdminView() {
             SFW
           </FButton>}
         </div>
+        <p className="text-sm text-green-500">
+          Note: it may take 10-15 minutes for the change to propagate to feeds.
+        </p>
       </div>
     </div>
   );

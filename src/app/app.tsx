@@ -138,6 +138,7 @@ function ClankfunShill() {
 }
 
 function SearchResults({ query }: { query: string }) {
+  const { filterNSFW } = useNSFWFilter()
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [searching, setSearching] = useState(false);
 
@@ -149,7 +150,7 @@ function SearchResults({ query }: { query: string }) {
       setClankers([])
       setSearching(true);
       const data = await serverSearchClankers(query);
-      setClankers(data);
+      setClankers(filterNSFW(data));
       setSearching(false);
     };
 
@@ -205,6 +206,8 @@ function SearchResults({ query }: { query: string }) {
 }
 
 export function LatestFeed() {
+  const { filterNSFW } = useNSFWFilter()
+
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [view, setView] = useState<"latest" | "1hvolume">("1hvolume")
   const [refreshing, setRefreshing] = useState(false);
@@ -277,6 +280,8 @@ export function LatestFeed() {
     void checkBalance()
   }, [address])
 
+  const clankersToRender = filterNSFW(clankers)
+
   return (
     <div className="w-full">
       <div className='flex items-center gap-2 mb-2 ml-2'>
@@ -296,22 +301,22 @@ export function LatestFeed() {
           latest
         </FButton>
       </div>
-      {clankers.length === 0 && (
+      {clankersToRender.length === 0 && (
         <Loader text="Loading new clankers" />
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {clankers[0] && <motion.div
-          key={clankers[0].contract_address}
+        {clankersToRender[0] && <motion.div
+          key={clankersToRender[0].contract_address}
           animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 0.4 }}
         >
           <ClankerCard
-            c={clankers[0]}
-            onSelect={() => setDetailClanker(clankers[0] ?? null)}
-            balance={balances[clankers[0].contract_address]}
+            c={clankersToRender[0]}
+            onSelect={() => setDetailClanker(clankersToRender[0] ?? null)}
+            balance={balances[clankersToRender[0].contract_address]}
           />
         </motion.div>}
-        {clankers.slice(1).map((item, i) => (
+        {clankersToRender.slice(1).map((item, i) => (
           <ClankerCard 
             key={i} 
             c={item} 
@@ -381,6 +386,8 @@ export function Portfolio() {
 }
 
 export function TopFeed() {
+  const { filterNSFW } = useNSFWFilter()
+
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [view, setView] = useState<"all" | "clankfun">("all")
   const [refreshing, setRefreshing] = useState(false);
@@ -410,11 +417,7 @@ export function TopFeed() {
     void fetchClankers();
   }, [view]);
 
-  function onApe(clanker: ClankerWithData, eth: number) {
-    setApeAmount(eth)
-    setDetailClanker(clanker)
-  }
-
+  const clankersToRender = filterNSFW(clankers)
   return (
     <div className="w-full">
       <div className='flex items-center gap-2 mb-2 ml-2'>
@@ -434,11 +437,11 @@ export function TopFeed() {
           clank.fun
         </FButton>
       </div>
-      {clankers.length === 0 && (
+      {clankersToRender.length === 0 && (
         <Loader text="Loading top clankers"  />
       )}
       <motion.div className="w-full h-full clanker_grid">
-        {filterBlacklisted(clankers).map((item, i) => (
+        {filterBlacklisted(clankersToRender).map((item, i) => (
           <ClankerCard 
             key={i} 
             c={item} 
@@ -460,6 +463,8 @@ export function TopFeed() {
 }
 
 export function HotFeed() {
+  const { filterNSFW, isAllowed } = useNSFWFilter()
+
   const [isHover, setHover] = useState<boolean>(false);
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [dispClankers, setDispClankers] = useState<ClankerWithData[]>([]);
@@ -475,7 +480,7 @@ export function HotFeed() {
     if (isHover) {
       return;
     }
-    setDispClankers(filterBlacklisted(clankers))
+    setDispClankers(filterBlacklisted(filterNSFW(clankers)))
   }, [clankers, isHover])
 
   useEffect(() => {
@@ -495,10 +500,14 @@ export function HotFeed() {
     const existing = clankers.find(c => c.contract_address.toLowerCase() === ca)
     if (existing) {
       // bump existing to the top of clankers
-      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== existing.contract_address.toLowerCase())])
+      if (isAllowed(existing)) {
+        setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== existing.contract_address.toLowerCase())])
+      }
     } else {
       const data = await serverFetchCA(ca)
-      setClankers(prevClankers => [data, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== data.contract_address.toLowerCase()).slice(0, 39)])
+      if (isAllowed(data)) {
+        setClankers(prevClankers => [data, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== data.contract_address.toLowerCase()).slice(0, 39)])
+      }
     }
   }
 
@@ -531,11 +540,6 @@ export function HotFeed() {
       socket.disconnect();
     };
   }, []);
-
-  function onApe(clanker: ClankerWithData, eth: number) {
-    setApeAmount(eth)
-    setDetailClanker(clanker)
-  }
 
   return (
     <div className="w-full">
@@ -725,65 +729,6 @@ export default function ClankerSearch({
   );
 }
 
-
-function Logo() {
-  return (
-    <div className="w-12 h-12 rounded grid place-items-center text-3xl bg-slate-900">
-      <motion.div
-        animate={{ rotateX: [-60, 40], rotateY: [-40, 60] }}
-        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-        className="relative"
-      >
-        <motion.div
-          animate={{ rotateX: [40, -40], rotateY: [40, -40], x: [-2, 2], y: [-2, 2] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-          className="absolute inset-0 text-red-500/30"
-        >
-          <ChartNoAxesColumnIncreasing />
-        </motion.div>
-        <motion.div
-          animate={{ rotateX: [-60, 60], rotateY: [-40, 40], x: [2, -2], y: [2, -2] }}
-          transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-          className="absolute inset-0 text-green-500/30"
-        >
-          <ChartNoAxesColumnIncreasing />
-        </motion.div>
-        <div>
-          <ChartNoAxesColumnIncreasing />
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
-const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count: number, id: string }) => {
-  const prevCount = useRef(count);
-  const prevId = useRef(id);
-
-  const shouldAnimate = prevCount.current !== count && prevId.current === id;
-
-  useEffect(() => {
-    prevCount.current = count;
-    prevId.current = id;
-  }, [count, id]);
-
-  return (
-    <motion.div
-      style={{ display: "flex", alignItems: "center", gap: "4px" }}
-      animate={{ scale: shouldAnimate ? 1.2 : 1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <motion.div
-        animate={shouldAnimate ? { rotate: 360 } : { rotate: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        {Icon}
-      </motion.div>
-      <span>{count}</span>
-    </motion.div>
-  );
-};
-
 import { debounce } from "lodash";
 import Link from "next/link";
 import { useAccount } from "wagmi";
@@ -796,6 +741,7 @@ import { FSnow } from "./components/FSnow";
 import { LaunchView } from "./components/LaunchView";
 import { ClankfunLogo } from "./components/Logo";
 import { usePrivy } from '@privy-io/react-auth';
+import { useNSFWFilter } from '~/lib/hooks/useNSFWFilter';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

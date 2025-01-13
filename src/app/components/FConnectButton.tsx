@@ -6,10 +6,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "~/components/ui/button";
 import { FInput } from "./FInput";
 import { useAccount } from "wagmi";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
+import { useNSFWFilter } from "~/lib/hooks/useNSFWFilter";
 
 export const FConnectButton = () => {
   const { authenticated, user, login, logout, exportWallet } = usePrivy();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const { showNSFW, setShowNSFW } = useNSFWFilter()
 
   const account = useAccount()
 
@@ -41,6 +45,14 @@ export const FConnectButton = () => {
               <span>Wallet Address:</span>
               <FInput value={user?.wallet?.address ?? ""} onChange={() => void 0} placeholder=""/>
             </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch 
+              checked={showNSFW}
+              onCheckedChange={setShowNSFW}
+              id="show-nsfw"
+            />
+            <Label htmlFor="show-nsfw">Show NSFW Clankers</Label>
           </div>
           <DialogFooter className="gap-0.5">
             <Button size="sm" variant="outline" onClick={handleCancelLogout}>
