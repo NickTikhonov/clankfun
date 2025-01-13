@@ -21,6 +21,7 @@ model Clanker {
   cast_hash        String?
   type             String?
   page             Int // this is used for scraping. sometimes set to -1 on get style scrape.
+  nsfw             Boolean @default(false)
 
   i_mcap_usd      Float?
   i_volume_usd    Float?

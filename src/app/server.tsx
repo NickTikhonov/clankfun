@@ -7,13 +7,11 @@
 
 import { env } from '~/env';
 import { NeynarAPIClient } from "@neynar/nodejs-sdk";
-import axios from 'axios';
 import { fetchMultiPoolMarketCaps, getEthUsdPrice, getTokenBalance } from './onchain';
 
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
 import { getQuote, getSwapPrice } from '~/lib/0x';
-import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 import Redis from 'ioredis';
 import { clankerRewardsUSDAPIBatched } from '~/lib/clanker';
