@@ -73,9 +73,6 @@ export async function serverLaunchToken({
     if (!response.data.contract_address) {
       throw new Error("Failed to deploy token")
     }
-    if (image) {
-      await announceNewTokenOnTelegram(name, ticker, response.data.contract_address)
-    }
     return response.data.contract_address as string
   } catch(e: any) {
     console.error("Failed to deploy token", e.message)
