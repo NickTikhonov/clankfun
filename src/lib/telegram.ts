@@ -7,15 +7,18 @@ const bot = new TelegramBot(env.TELEGRAM_API_KEY, {
 });
 
 export async function announceNewTokenOnTelegram(name: string, ticker: string, ca: string) {
-  try {
   const message = `New coin launched! 🚀
 name: ${name}
 ticker: ${ticker}
  
 https://clank.fun/t/${ca.trim()}`
+  await postToClankfunTg(message)
+}
 
-  await bot.sendMessage("-1002268416996", message)
+export async function postToClankfunTg(message: string) {
+  try {
+    await bot.sendMessage("-1002268416996", message)
   } catch(e: any) {
-    console.log("Failed to announce on Telegram", e.message)
+    console.log("Failed to send Telegram message", e.message)
   }
 }

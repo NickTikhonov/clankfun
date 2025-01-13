@@ -4,7 +4,6 @@ import { useToast } from "~/hooks/use-toast";
 import { FButton } from "../components/FButton";
 import { FInput } from "../components/FInput";
 
-import { set } from "lodash";
 import { adminSetNSFW } from "./server";
 
 import { useEffect, useState } from "react";
