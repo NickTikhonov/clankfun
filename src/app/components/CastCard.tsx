@@ -66,62 +66,62 @@ export function ENSCard({
   }
 
   return(
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row', 
-      alignItems: 'center',
-      padding: 0,
-      gap: 8,
-      margin: '0 auto',
-      width: '100%',
-      borderRadius: 5,
-      flex: 'none',
-      alignSelf: 'stretch',
-      flexGrow: 0,
-    }}>
-      {ensAvatar ? 
-      <img src={ensAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover flex-none order-0" /> : 
-      <div
-        style={{
-          backgroundColor: hashToRandomColorHash(address),
-        }}
-        className={`w-8 h-8 rounded-full object-cover flex-none order-0`}
-      >
-      </div>}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        padding: '0px',
-        gap: '6px',
-        flex: 'none',
-        order: 1,
-        flexGrow: 1,
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          padding: '0px',
-          gap: '4px',
-          flex: 'none',
-          order: 0,
-          alignSelf: 'stretch',
-          flexGrow: 0,
-        }}>
-          <div className="text-white font-normal text-[14px] leading-[14px] flex-none order-0">
-            {name}
-          </div>
-          {/* <div className="text-white/50 font-normal text-[14px] leading-[14px] flex-none order-1">
-            @{truncate(cast.author.username ?? "", 10)}
-          </div> */}
+    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none pb-2">
+        <div className="w-8 h-8 relative rounded-[27px] border" 
+          style={{backgroundColor: hashToRandomColorHash(address)}}
+        />
+        <div className="flex flex-col justify-start items-start gap-1.5">
+            <div className="text-white text-sm font-normal font-['ABC Diatype'] leading-[14px]">{ensName ?? address.slice(0,10)}</div>
         </div>
-        {/* <div className="w-full">
-          {withText && (
-            cast.text  
-          )}
-        </div> */}
-      </div>
+    </div>
+  )
+}
+
+export function CastCardV2({
+  cast
+}: {
+  cast: CastWithInteractions
+}) {
+  const score = cast.reactions.likes_count + cast.reactions.recasts_count
+  return (
+    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none pb-2">
+        <img className="w-8 h-8 relative rounded-[27px] border" src={cast.author.pfp_url!} />
+        <div className="flex flex-col justify-start items-start gap-1.5">
+            <div className="text-white text-sm font-normal font-['ABC Diatype'] leading-[14px]">{cast.author.display_name ?? cast.author.username}</div>
+            <div className="flex justify-start items-center gap-1">
+                <div className="flex justify-start items-center gap-0.5">
+                  <div className="w-5 h-5 flex-none flex items-center -mx-1">
+                    <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="url(#filter0_dd_360_1059)">
+                    <path d="M9.82376 7.5L7 13.276H9.53247L8.64745 17.5L17 9.90665H13.7696L15.1815 7.5H9.82376Z" fill="#29D974"/>
+                    </g>
+                    <defs>
+                    <filter id="filter0_dd_360_1059" x="0" y="0.5" width="24" height="24" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset/>
+                    <feGaussianBlur stdDeviation="3.5"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.160784 0 0 0 0 0.85098 0 0 0 0 0.454902 0 0 0 1 0"/>
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_360_1059"/>
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                    <feOffset/>
+                    <feGaussianBlur stdDeviation="1"/>
+                    <feComposite in2="hardAlpha" operator="out"/>
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.160784 0 0 0 0 0.85098 0 0 0 0 0.454902 0 0 0 1 0"/>
+                    <feBlend mode="normal" in2="effect1_dropShadow_360_1059" result="effect2_dropShadow_360_1059"/>
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_360_1059" result="shape"/>
+                    </filter>
+                    </defs>
+                    </svg>
+                  </div>
+                  <div className="text-[#29d974] text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">{score}</div>
+                </div>
+                <div className="w-[3px] h-[3px] bg-white/10 rounded-full" />
+                <div className="text-white/60 text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">{cast.reactions.recasts_count} Recasts</div>
+                <div className="w-[3px] h-[3px] bg-white/10 rounded-full" />
+                <div className="text-white/60 text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">{cast.reactions.likes_count} Likes</div>
+            </div>
+        </div>
     </div>
   )
 }

@@ -6,9 +6,114 @@ import { type ClankerWithData } from "../server";
 import { motion } from 'framer-motion';
 import { WithTooltip } from "../components";
 import moment from "moment"
-import { CastCard, ENSCard } from "./CastCard";
+import { CastCard, CastCardV2, ENSCard } from "./CastCard";
 
-export function ClankerCard({ 
+export function ClankerCard({
+  c, 
+  onSelect, 
+  balance,
+  onHover,
+  withoutCast,
+  noLink = false,
+}: { 
+  c: ClankerWithData, 
+  onSelect?: () => void, 
+  balance?: number,
+  onHover?: (isHovered: boolean) => void
+  withoutCast?: boolean
+  noLink?: boolean
+}) {
+  return (
+    <ClankerCardV3
+      c={c} 
+      onSelect={onSelect} 
+      balance={balance} 
+      onHover={onHover} 
+      withoutCast={withoutCast} 
+      noLink={noLink}
+    />
+  )
+}
+
+export function ClankerCardV3({
+  c, 
+  onSelect, 
+  balance,
+  onHover,
+  withoutCast,
+  noLink = false,
+}: { 
+  c: ClankerWithData, 
+  onSelect?: () => void, 
+  balance?: number,
+  onHover?: (isHovered: boolean) => void
+  withoutCast?: boolean
+  noLink?: boolean
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    onHover?.(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    onHover?.(false)
+  }
+
+  return (
+    <motion.a
+      className={`pl-2 pr-3 py-2 rounded border flex-col justify-start items-start gap-2 inline-flex h-[204px] relative cursor-pointer ${isHovered ? 'border-white/30 z-10' : 'border-white/10'} overflow-hidden`}
+      href={noLink ? '#' : `/t/${c.contract_address}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={onSelect}
+      whileHover={{
+        rotate: 2,
+        scale: 1.05
+      }}
+    >
+      <div className="w-full flex justify-start items-start gap-3 flex-grow">
+        <div className="w-[188px] h-[188px] bg-[#5e3eff] rounded-[1px] border flex justify-center items-center">
+          {c.img_url ? <img src={c.img_url} alt="" className="w-full h-full object-contain" /> : 
+          <div className="bg-purple-500 w-full h-full grid place-items-center text-[8px] md:text-base">
+            ${c.symbol}
+          </div>}
+        </div>
+          <div className="flex flex-grow flex-col justify-start items-start gap-2.5 h-[188px]">
+              <div className="flex flex-grow flex-col justify-start items-start gap-1.5 w-full">
+                  <div className="flex justify-between items-start w-full">
+                      <div className="text-white/60 text-sm font-normal font-['ABC Diatype'] leading-[14px]">${c.symbol}</div>
+                      <div className="text-right text-white/40 text-[10px] font-normal font-['ABC Diatype'] leading-[10px]">{moment(c.created_at).fromNow()}</div>
+                  </div>
+                  <div className="text-white text-[22px] font-normal font-['ABC Diatype'] leading-snug">{c.name}</div>
+              </div>
+              <div className="flex justify-start items-center gap-1 w-full flex-none">
+                  <div className="flex flex-col justify-start items-start gap-1.5 w-full">
+                      <div className="text-white/60 text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">Market cap</div>
+                      <div className="flex justify-start items-start gap-1">
+                          <div className="text-[#41ccff] text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">${formatPrice(c.marketCap)}</div>
+                          <div className="text-[#29d974] text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">+%2</div>
+                      </div>
+                  </div>
+                  <div className="flex flex-col justify-start items-start gap-1.5 w-full">
+                      <div className="text-white/60 text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">Volume</div>
+                      <div className="flex justify-start items-start gap-1">
+                          <div className="text-[#41ccff] text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">${formatPrice(c.marketCap)}</div>
+                          <div className="text-[#ff693c] text-[13px] font-normal font-['ABC Diatype'] leading-[13px]">-%1</div>
+                      </div>
+                  </div>
+              </div>
+              <div className="w-full h-[0px] border border-white/5"></div>
+              <UserCard c={c} />
+          </div>
+      </div>
+    </motion.a>
+  )
+}
+
+export function ClankerCardV2({ 
   c, 
   onSelect, 
   balance,
@@ -131,7 +236,7 @@ export function ClankerCard({
 export function UserCard({ c }: { c: ClankerWithData }) {
   if (c.cast) return (
     <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer">
-      <CastCard cast={c.cast} />
+      <CastCardV2 cast={c.cast} />
     </a>
   )
 

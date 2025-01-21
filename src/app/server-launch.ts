@@ -2,7 +2,6 @@
 "use server"
 
 import axios from 'axios';
-import { redirect } from 'next/navigation';
 
 import { verifyMessage } from 'viem';
 import { env } from '~/env';
