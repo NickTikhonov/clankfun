@@ -138,7 +138,7 @@ export function ClankerCardV3({
                 </div>
                 {c.volume24h && <div className="flex w-full flex-col items-start justify-start gap-1.5">
                   <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-white/60">
-                    24 Volume
+                    24h Volume
                   </div>
                   <div className="flex items-start justify-start gap-1">
                     <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#41ccff]">
