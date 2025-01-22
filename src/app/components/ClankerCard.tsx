@@ -64,7 +64,7 @@ export function ClankerCardV3({
 
   return (
     <motion.a
-      className={`pl-2 pr-3 py-2 rounded border flex-col justify-start items-start gap-2 inline-flex h-[204px] relative cursor-pointer ${isHovered ? 'border-white/30 z-10' : 'border-white/10'} overflow-hidden`}
+      className={`bg-[#090F11] w-full pl-2 pr-3 py-2 rounded border flex-col justify-start items-start gap-2 inline-flex h-[204px] relative cursor-pointer ${isHovered ? 'border-white/30 z-10' : 'border-white/10'} overflow-hidden`}
       href={noLink ? '#' : `/t/${c.contract_address}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

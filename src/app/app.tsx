@@ -85,7 +85,6 @@ export function App({
 
 function ClankfunShill() {
   const [data, setData] = useState<ClankerWithData | null>(null)
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
 
   useEffect(() => {
     async function fetchClankfun() {
@@ -100,7 +99,6 @@ function ClankfunShill() {
       <motion.div
         className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
         onClick={() => { 
-          setDetailClanker(data)
           window.open(`https://clank.fun/t/${data?.contract_address}`)
         }}
         whileHover={{
@@ -548,6 +546,7 @@ export function HotFeed() {
       )}
       <motion.div className="w-full h-full clanker_grid">
         {dispClankers[0] && <motion.div
+          className='w-full'
           key={dispClankers[0].contract_address}
           animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 0.4 }}
