@@ -54,7 +54,6 @@ export function ENSCard({
   address: `0x${string}`, 
 }) {
   const { data: ensName } = useEnsName({ address })
-  const { data: ensAvatar } = useEnsAvatar({ name: ensName as string | undefined })
 
   useEffect(() => {
     console.log(ensName)
@@ -66,7 +65,7 @@ export function ENSCard({
   }
 
   return(
-    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none pb-2">
+    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none">
         <div className="w-8 h-8 relative rounded-[27px] border" 
           style={{backgroundColor: hashToRandomColorHash(address)}}
         />
@@ -84,7 +83,7 @@ export function CastCardV2({
 }) {
   const score = cast.reactions.likes_count + cast.reactions.recasts_count
   return (
-    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none pb-2">
+    <div className="w-full rounded-[5px] flex justify-start items-center gap-2 flex-none">
         <img className="w-8 h-8 relative rounded-[27px] border" src={cast.author.pfp_url!} />
         <div className="flex flex-col justify-start items-start gap-1.5">
             <div className="text-white text-sm font-normal font-['ABC Diatype'] leading-[14px]">{cast.author.display_name ?? cast.author.username}</div>
@@ -96,8 +95,8 @@ export function CastCardV2({
                     <path d="M9.82376 7.5L7 13.276H9.53247L8.64745 17.5L17 9.90665H13.7696L15.1815 7.5H9.82376Z" fill="#29D974"/>
                     </g>
                     <defs>
-                    <filter id="filter0_dd_360_1059" x="0" y="0.5" width="24" height="24" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                    <filter id="filter0_dd_360_1059" x="0" y="0.5" width="24" height="24" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                    <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                     <feOffset/>
                     <feGaussianBlur stdDeviation="3.5"/>

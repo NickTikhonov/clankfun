@@ -62,6 +62,7 @@ export type Clanker = z.infer<typeof ClankerSchema>
 
 type ClankerMarketData = {
   marketCap: number, 
+  volume24h?: number,
   decimals: number,
   priceUsd: number,
   rewardsUSD?: number,
@@ -178,7 +179,7 @@ export async function serverFetchBalance(address?: string) {
 }
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
-  const cacheKey = `hotclankers-3`;
+  const cacheKey = `hotclankers-4`;
   const cachedResult = await cached(cacheKey);
   if (cachedResult) {
     return cachedResult
@@ -221,6 +222,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       cast: cast,
       nsfw: c.nsfw,
       creator: c.i_owner_address ?? undefined,
+      volume24h: c.i_24h_volume ?? undefined
     }
   })
 
