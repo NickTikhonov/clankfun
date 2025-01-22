@@ -12,7 +12,7 @@ import { io } from 'socket.io-client';
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "~/components/ui/dialog";
 import { WithTooltip } from "./components";
-import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchHotClankers, serverFetchLatest3hVolume, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchCAStale, serverFetchHotClankers, serverFetchLatest3hVolume, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 
 type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail" | "portfolio"
 
@@ -502,7 +502,8 @@ export function HotFeed() {
         setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== existing.contract_address.toLowerCase())])
       }
     } else {
-      const data = await serverFetchCA(ca)
+      // Data fetch that runs on every bump, from every connected client.
+      const data = await serverFetchCAStale(ca)
       if (isAllowed(data)) {
         setClankers(prevClankers => [data, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== data.contract_address.toLowerCase()).slice(0, 39)])
       }
