@@ -87,6 +87,8 @@ export type DBClanker = {
   cast_hash: string | null;
   page: number;
   nsfw: boolean;
+  i_24h_volume: number | null;
+  i_owner_address: string | null;
 }
 
 // Deprecated: this is being replaced with the indexer (/api/index)
@@ -124,7 +126,8 @@ export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> 
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
       creator: mcaps[clanker.pool_address]?.owner ?? undefined,
-      nsfw: clanker.nsfw
+      nsfw: clanker.nsfw,
+      volume24h: clanker.i_24h_volume ?? undefined
     }
   })
   return res
@@ -328,6 +331,7 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
     cast: c.i_cast ? JSON.parse(c.i_cast) : null,
     nsfw: c.nsfw,
     creator: c.i_owner_address ?? undefined,
+    volume24h: c.i_24h_volume ?? undefined
   }
 }
 
@@ -376,7 +380,8 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
       decimals: c.i_decimals ?? 18,
       cast: cast,
       creator: c.i_owner_address ?? undefined,
-      nsfw: c.nsfw
+      nsfw: c.nsfw,
+      volume24h: c.i_24h_volume ?? undefined
     }
   })
 
@@ -426,7 +431,8 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
       decimals: c.i_decimals ?? 18,
       cast: cast,
       creator: c.i_owner_address ?? undefined,
-      nsfw: c.nsfw
+      nsfw: c.nsfw,
+      volume24h: c.i_24h_volume ?? undefined
     }
   })
 
