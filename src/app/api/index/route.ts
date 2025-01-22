@@ -13,8 +13,6 @@ import { fetchGraphUniswapBaseData } from '~/lib/index/uniswapGraph';
  * 
  * This API is called by the realtime service to sync latest information for clankers that were traded in a specified time window.
  */
-const INDEX_INTERVAL_SECONDS = 60 * 5
-
 const RequestSchema = z.object({
   contractAddresses: z.array(z.string())
 })
@@ -41,11 +39,9 @@ export async function POST(request: Request) {
     batches.push(contractAddresses.slice(i, i + 10));
   }
 
-  const batchPromises = batches.map(async (batch) => {
+  for (const batch of batches) {
     await indexBatch(batch);
-  });
-
-  await Promise.all(batchPromises);
+  }
 
   return NextResponse.json({ success: true });
 }
