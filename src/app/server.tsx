@@ -219,7 +219,8 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
       cast: cast,
-      nsfw: c.nsfw
+      nsfw: c.nsfw,
+      creator: c.i_owner_address,
     }
   })
 
@@ -323,7 +324,8 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
     rewardsUSD: c.i_rewards_usd ?? 0,
     decimals: c.i_decimals ?? 18,
     cast: c.i_cast ? JSON.parse(c.i_cast) : null,
-    nsfw: c.nsfw
+    nsfw: c.nsfw,
+    creator: c.i_owner_address ?? undefined,
   }
 }
 
@@ -371,6 +373,7 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
       cast: cast,
+      creator: c.i_owner_address ?? undefined,
       nsfw: c.nsfw
     }
   })
@@ -420,6 +423,7 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
       rewardsUSD: c.i_rewards_usd ?? 0,
       decimals: c.i_decimals ?? 18,
       cast: cast,
+      creator: c.i_owner_address ?? undefined,
       nsfw: c.nsfw
     }
   })

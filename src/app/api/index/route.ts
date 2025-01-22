@@ -103,7 +103,7 @@ async function indexBatch(contractAddresses: string[]) {
           i_rewards_usd: embuedData.rewardsUSD,
           i_cast: embuedData.cast ? JSON.stringify(embuedData.cast) : null,
           i_owner_address: ownerAddress,
-          i_updated_at: new Date()
+          i_updated_at: new Date(),
         }
       })
     } catch (e: any) {
