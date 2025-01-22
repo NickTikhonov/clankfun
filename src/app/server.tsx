@@ -266,7 +266,7 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
 
 export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
   const ca = "0x1d008f50fb828ef9debbbeae1b71fffe929bf317"
-  return await serverFetchCA(ca)
+  return await serverFetchCAStale(ca)
 }
 
 export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
@@ -290,6 +290,41 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   }
   await cacheSet(cacheKey, embued[0]!, CACHE_EXPIRATION_SECONDS);
   return embued[0]!
+}
+
+export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
+  ca = ca.toLowerCase()
+  const c = await db.clanker.findFirst({
+    where: {
+      contract_address: ca,
+      i_updated_at: {
+        not: null
+      },
+    }
+  })
+
+  if (!c) {
+    throw new Error(`Clanker not found: ${ca}`)
+  }
+  return {
+    id: c.id,
+    created_at: c.created_at.toString(),
+    tx_hash: c.tx_hash,
+    contract_address: c.contract_address,
+    requestor_fid: c.requestor_fid,
+    name: c.name,
+    symbol: c.symbol,
+    img_url: c.img_url,
+    pool_address: c.pool_address,
+    cast_hash: c.cast_hash,
+    type: c.type ?? "unknown",
+    marketCap: c.i_mcap_usd ?? 0,
+    priceUsd: c.i_price_usd ?? 0,
+    rewardsUSD: c.i_rewards_usd ?? 0,
+    decimals: c.i_decimals ?? 18,
+    cast: c.i_cast ? JSON.parse(c.i_cast) : null,
+    nsfw: c.nsfw
+  }
 }
 
 export async function serverFetchTopClankers(clankfun?: boolean): Promise<ClankerWithData[]> {
