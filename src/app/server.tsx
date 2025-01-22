@@ -346,7 +346,10 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
       },
       cast_hash: clankfun ? {
         equals: 'clank.fun deployment'
-      } : undefined
+      } : undefined,
+      i_mcap_usd: {
+        gt: 0
+      }
     },
     orderBy: {
       i_mcap_usd: 'desc'
