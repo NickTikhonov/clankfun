@@ -75,7 +75,7 @@ export function ClankerCardV3({
       }}
     >
       <div className="flex w-full flex-grow items-start justify-start gap-3">
-        <div className="hidden md:flex md:h-[188px] md:w-[188px] flex-none items-center justify-center rounded-[1px] border bg-transparent">
+        <div className="relative hidden md:flex md:h-[188px] md:w-[188px] flex-none items-center justify-center rounded-[1px] border bg-transparent">
           {c.img_url ? (
             <img
               src={c.img_url}
@@ -87,11 +87,18 @@ export function ClankerCardV3({
               ${c.symbol}
             </div>
           )}
+          {balance && (c.priceUsd * balance) / 10 ** c.decimals > 0.01 ? (
+            <BalanceView
+              balance={balance}
+              decimals={c.decimals}
+              priceUsd={c.priceUsd}
+            />
+          ) : null}
         </div>
         {/* Details */}
         <div className="flex md:h-[188px] flex-grow flex-col items-start justify-start gap-2.5">
           <div className="w-full h-full flex-grow flex gap-2.5">
-            <div className="flex md:hidden w-24 h-24 flex-none items-center justify-center rounded-[1px] border bg-transparent">
+            <div className="relative flex md:hidden w-24 h-24 flex-none items-center justify-center rounded-[1px] border bg-transparent">
               {c.img_url ? (
                 <img
                   src={c.img_url}
@@ -103,6 +110,13 @@ export function ClankerCardV3({
                   ${c.symbol}
                 </div>
               )}
+              {balance && (c.priceUsd * balance) / 10 ** c.decimals > 0.01 ? (
+                <BalanceView
+                  balance={balance}
+                  decimals={c.decimals}
+                  priceUsd={c.priceUsd}
+                />
+              ) : null}
             </div>
             <div className="flex w-full flex-grow flex-col items-start justify-start gap-2.5">
               {/* Ticker, Launched and Name */}
@@ -427,7 +441,7 @@ function BalanceView({
   priceUsd: number;
 }) {
   return (
-    <div className="absolute bottom-0 left-0 grid w-full place-items-center bg-gradient-to-bl from-pink-500 to-purple-500 p-1 text-white">
+    <div className="absolute bottom-0 left-0 grid w-full place-items-center bg-gradient-to-b from-purple-500/30 to-purple-500/90 p-1 text-white font-semibold">
       <span className="hidden text-xs md:block">
         you own ${formatPrice((priceUsd * balance) / 10 ** decimals)}
       </span>
