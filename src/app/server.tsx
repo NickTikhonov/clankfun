@@ -182,11 +182,11 @@ export async function serverFetchBalance(address?: string) {
 }
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
-  const cacheKey = `hotclankers-4`;
-  const cachedResult = await cached(cacheKey);
-  if (cachedResult) {
-    return cachedResult
-  }
+  // const cacheKey = `hotclankers-4`;
+  // const cachedResult = await cached(cacheKey);
+  // if (cachedResult) {
+  //   return cachedResult
+  // }
 
   const updateThreshold = new Date(Date.now() - 1000 * 60 * 60 * 2)
   const dbClankers = await db.clanker.findMany({
@@ -229,7 +229,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
     }
   })
 
-  await cacheSet(cacheKey, res, 60 * 10);
+  // await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
 
@@ -333,11 +333,11 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
 }
 
 export async function serverFetchTopClankers(clankfun?: boolean): Promise<ClankerWithData[]> {
-  const cacheKey = clankfun ? `topclankers-cf-3` : `topclankers-3`;
-  const cachedResult = await cached(cacheKey);
-  if (cachedResult) {
-    return cachedResult
-  }
+  // const cacheKey = clankfun ? `topclankers-cf-3` : `topclankers-3`;
+  // const cachedResult = await cached(cacheKey);
+  // if (cachedResult) {
+  //   return cachedResult
+  // }
 
   const dbClankers = await db.clanker.findMany({
     where: {
@@ -382,7 +382,7 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
     }
   })
 
-  await cacheSet(cacheKey, res, 60 * 10);
+  // await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
 
