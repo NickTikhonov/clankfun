@@ -303,9 +303,6 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
   const c = await db.clanker.findFirst({
     where: {
       contract_address: ca,
-      i_updated_at: {
-        not: null
-      },
     }
   })
 
