@@ -330,7 +330,7 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
 }
 
 export async function serverFetchTopClankers(clankfun?: boolean): Promise<ClankerWithData[]> {
-  const cacheKey = clankfun ? `topclankers-cf-2` : `topclankers-2`;
+  const cacheKey = clankfun ? `topclankers-cf-3` : `topclankers-3`;
   const cachedResult = await cached(cacheKey);
   if (cachedResult) {
     return cachedResult
