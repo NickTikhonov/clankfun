@@ -299,7 +299,7 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
 }
 
 export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
-  ca = ca.toLowerCase()
+  ca = ca.toLowerCase().trim()
   const c = await db.clanker.findFirst({
     where: {
       contract_address: ca,
