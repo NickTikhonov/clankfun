@@ -220,7 +220,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       decimals: c.i_decimals ?? 18,
       cast: cast,
       nsfw: c.nsfw,
-      creator: c.i_owner_address,
+      creator: c.i_owner_address ?? undefined,
     }
   })
 
