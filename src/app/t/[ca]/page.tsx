@@ -6,7 +6,7 @@ export const revalidate = 0
 
 import { Nav } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
-import { serverFetchCA } from "~/app/server";
+import { serverFetchCA, serverFetchCAStale } from "~/app/server";
 import { track } from "@vercel/analytics/server";
 import { type Metadata } from "next";
 import { type Referral, serverFetchReferralById } from "~/app/server-referral";
@@ -22,7 +22,7 @@ export async function generateMetadata({ params, searchParams }: {
   const { ca } = await params
   await searchParams
   await getOrScrapeByCa(ca)
-  const data = await serverFetchCA(ca)
+  const data = await serverFetchCAStale(ca)
 
   if (!data) {
     return {
