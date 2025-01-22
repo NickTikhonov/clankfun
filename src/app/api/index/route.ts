@@ -95,11 +95,11 @@ async function indexBatch(contractAddresses: string[]) {
           id: clanker.id
         },
         data: {
-          i_mcap_usd: embuedData.marketCap,
+          i_price_usd: embuedData.priceUsd > 0 ? embuedData.priceUsd : undefined, // If price or market cap is 0, don't update
+          i_mcap_usd: embuedData.marketCap > 0 ? embuedData.marketCap : undefined,
           i_volume_usd: graphToken.volumeUSD,
           i_trades: graphToken.txCount,
           i_decimals: graphToken.decimals,
-          i_price_usd: embuedData.priceUsd,
           i_rewards_usd: embuedData.rewardsUSD,
           i_cast: embuedData.cast ? JSON.stringify(embuedData.cast) : null,
           i_owner_address: ownerAddress,

@@ -4,8 +4,13 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+import { Nav } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
-import { serverFetchCAStale } from "~/app/server";
+import { serverFetchCA } from "~/app/server";
+import { track } from "@vercel/analytics/server";
+import { type Metadata } from "next";
+import { type Referral, serverFetchReferralById } from "~/app/server-referral";
+import { TradeView } from "~/app/components/views/TradeView";
 
 type Params = Promise<{ca: string}>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -19,7 +24,7 @@ export default async function Page({
 }) {
   const { ca } = await params
   await getOrScrapeByCa(ca)
-  const data = await serverFetchCAStale(ca)
+  const data = await serverFetchCA(ca)
   return (
     <pre>
       {JSON.stringify(data, null, 2)}

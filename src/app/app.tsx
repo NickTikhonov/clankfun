@@ -504,6 +504,7 @@ export function HotFeed() {
     } else {
       // Data fetch that runs on every bump, from every connected client.
       const data = await serverFetchCAStale(ca)
+      console.log('Got data for ' + data.name, data)
       if (isAllowed(data)) {
         setClankers(prevClankers => [data, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== data.contract_address.toLowerCase()).slice(0, 39)])
       }
