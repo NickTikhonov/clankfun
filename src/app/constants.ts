@@ -4,5 +4,5 @@ export const CLANKFUN_CAST_HASH = "clank.fun deployment"
 export const SPLIT_CAST_HASH = "split-a-clank deployment"
 
 export function isValidCastHash(hash: string): boolean {
-  return hash != CLANKFUN_CAST_HASH && hash != SPLIT_CAST_HASH
+  return hash.startsWith("0x")
 }
