@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 
 export const CountdownTimer = () => {
@@ -32,7 +34,7 @@ const calculateEndTime = () => {
     now.getFullYear(),
     now.getMonth(),
     now.getDate(),
-    now.getHours() + (now.getMinutes() >= 30 ? 1 : 0),
+    now.getHours() + 1,
     0,
     0
   );
