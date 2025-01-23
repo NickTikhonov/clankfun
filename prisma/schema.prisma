@@ -21,7 +21,7 @@ model Clanker {
   cast_hash        String?
   type             String?
   page             Int // this is used for scraping. sometimes set to -1 on get style scrape.
-  nsfw             Boolean @default(false)
+  nsfw             Boolean  @default(false)
 
   i_mcap_usd      Float?
   i_volume_usd    Float?
@@ -48,4 +48,21 @@ model TradeReferral {
 
   @@unique([walletAddress, contractAddress])
   @@index([walletAddress, contractAddress])
+}
+
+model ContestEntry {
+  id           String        @id @default(cuid())
+  created_at   DateTime
+  ownerAddress String        @unique
+  name         String
+  symbol       String
+  img_url      String?
+  votes        ContestVote[]
+}
+
+model ContestVote {
+  id      String       @id @default(cuid())
+  address String       @unique
+  entry   ContestEntry @relation(fields: [entryId], references: [id])
+  entryId String
 }

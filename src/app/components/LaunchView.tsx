@@ -5,17 +5,20 @@ import { FImageUpload } from "./FImageUpload";
 import { useAccount, useSignMessage } from "wagmi";
 import { FConnectButtonLarge } from "./FConnectButton";
 import { Button } from "~/components/ui/button";
-import { serverCheckBalance, serverLaunchToken } from "../server-launch";
+import { serverCheckBalance, serverContestLaunchToken, serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics/react";
 import { CircleCheckBigIcon, DollarSign, Megaphone, Wallet, XIcon } from "lucide-react";
 import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
 import { ClankerCard } from "./ClankerCard";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
 
 export function LaunchView() {
   const { toast } = useToast()
 
+  const [isContest, setIsContest] = useState(false)
   const [nonce, setNonce] = useState<string|null>(null);
   const [launching, setLaunching] = useState<boolean>(false);
   const [name, setName] = useState("");
@@ -69,6 +72,49 @@ export function LaunchView() {
 
   const router = useRouter()
 
+  async function contestLaunch() {
+    setLaunching(true)
+    try {
+      const canLaunch = nonce && name.length > 0 && ticker.length > 0 && address
+      if (!canLaunch) return;
+      const signature = await signMessageAsync({ message: nonce })
+      console.log(signature)
+
+      const res = await serverContestLaunchToken({
+        name,
+        ticker,
+        image,
+        address,
+        nonce: nonce!,
+        signature
+      });
+
+      if (res.tokenCA) {
+        setName("")
+        setTicker("")
+        setImage(null)
+        toast({
+          title: "Token entered into Clash of Clankers!",
+          description: "Your token has been successfully entered into the contest. Visit the homepage to see other entries and vote!"
+        })
+      } else {
+        toast({
+          title: "Error launching token",
+          description: res.error
+        })
+      }
+    } catch(e: any) {
+      console.error("Failed to launch token", e.message)
+      toast({
+        title: "Error launching token",
+        description: e.message
+      })
+      updateNonce()
+    } finally {
+      setLaunching(false)
+    }
+  }
+
   async function launchToken() {
     setLaunching(true)
     try {
@@ -84,7 +130,7 @@ export function LaunchView() {
       console.log("Nonce:", nonce)
       console.log("Signature:", signature)
 
-      const ca = await serverLaunchToken({
+      const res = await serverLaunchToken({
         name,
         ticker,
         image,
@@ -93,18 +139,25 @@ export function LaunchView() {
         signature
       });
 
-      setName("")
-      setTicker("")
-      setImage(null)
-      track("Launch", { 
-        address,
-        ca 
-      })
-      toast({
-        title: "Token launched! Redirecting...",
-        description: "Your token has been successfully launched. Redirecting to the token page."
-      })
-      router.push(`/t/${ca}`);
+      if (res.tokenCA) {
+        setName("")
+        setTicker("")
+        setImage(null)
+        track("Launch", { 
+          address,
+          ca: res.tokenCA
+        })
+        toast({
+          title: "Token launched! Redirecting...",
+          description: "Your token has been successfully launched. Redirecting to the token page."
+        })
+        router.push(`/t/${res.tokenCA}`);
+      } else {
+        toast({
+          title: "Error launching token",
+          description: res.error
+        })
+      }
     } catch(e: any) {
       console.error("Failed to launch token", e.message)
       toast({
@@ -208,7 +261,27 @@ export function LaunchView() {
             <FImageUpload onImage={setImage} />
           </div>
         </div>: null}
-        {address ? (<Button onClick={launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
+        <div className="flex items-center space-x-2 w-full">
+          <Switch 
+            checked={isContest}
+            onCheckedChange={setIsContest}
+            id="show-nsfw"
+          />
+          <Label htmlFor="show-nsfw">
+            Enter in Clash of Clankers instead of launching immediately 🚀
+          </Label>
+        </div>
+        <div className="w-full">
+          {isContest ? <p>
+            This coin will be entered into Clash of Clankers. Thousands of clank.fun users will be able to vote for their favorite new coin. If your coin gets the most votes by 1pm EST/6pm GMT, it will be launched and will stay on the #1 spot on clank.fun for 24 hours.
+            <br />
+            <br />
+            You can only make one entry per round. You will not be able to edit your entry once submitted.
+          </p> : <p>
+            This coin will be launched immediately.
+          </p>}
+        </div>
+        {address ? (<Button onClick={isContest ? contestLaunch : launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
           <div className="  text-[15px] font-medium leading-[15px] text-white">
             {buttonName}
           </div>

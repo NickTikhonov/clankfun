@@ -460,6 +460,102 @@ export function TopFeed() {
   );
 }
 
+function LaunchContest() {
+  // Contest stuff
+  const [contest, setContest] = useState<ContestInfo | null>(null)
+  const { getAccessToken, user } = usePrivy()
+  const { toast } = useToast()
+
+  async function fetchContest() {
+    const data = await serverFetchContest()
+    setContest(data)
+  }
+
+  useEffect(() => {
+    void fetchContest()
+  }, [])
+
+  function votedForEntry(id: string) {
+    if (!contest) return false;
+    if (!user?.id) return false;
+
+    const entry = contest.entries.find(e => e.id === id)
+    if (!entry) return false;
+
+    const vote = entry.votes.find(v => v.address.toLowerCase() === user.id.toLowerCase())
+    return vote !== undefined
+  }
+
+  async function vote(id: string) {
+    const token = await getAccessToken()
+    if (!token) return
+    if (!contest) return
+    if (!user) return
+    toast({
+      title: "Voting!"
+    })
+    const res = await serverVoteForContestEntry(id, token)
+    if (!res) {
+      toast({
+        title: "Failed to vote",
+      })
+      return
+    }
+
+    await fetchContest()
+    toast({
+      title: "Voted successfully!",
+    })
+  }
+
+  return (
+    <div className='w-full'>
+      {contest && (
+        <div className='w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-2 h-[500px] md:h-[250px]'>
+          {contest.winner && (
+            <div className='flex flex-col gap-2 flex-grow'>
+              <p className='text-sm font-bold'>Clash of Clankers winner:</p>
+              <ClankerCard
+                c={contest.winner}
+                onSelect={() => void 0 }
+                balance={0}
+              />
+            </div>
+          )}
+          <div className='flex flex-col gap-2'>
+            <div className='flex flex-row gap-2 text-sm'>
+              <p className='text-sm font-bold'>Pick the next winner: </p>
+              <CountdownTimer />
+            </div>
+            <div className='flex flex-col gap-2 overflow-scroll h-[200px]'>
+            {[...contest.entries].map((entry, i) => (
+              <div key={i} className='flex items-center gap-2'>
+                <div className=''>
+                  {entry.img_url ? 
+                    <img src={entry.img_url ?? ""} alt={entry.name} className='w-20 h-20 rounded-lg object-cover' /> :
+                    <div className='w-20 h-20 rounded-lg bg-purple-500' />
+                  }
+                </div>
+                <div className='flex flex-col'>
+                  <p className='text-sm font-bold'>{entry.name}</p>
+                  <p className='text-sm text-white/70'>Votes: {entry.votes.length}</p>
+                  <UserCard c={{creator: entry.ownerAddress} as ClankerWithData} />
+                </div>
+                <div className='flex-grow flex items-end justify-center'>
+                  {votedForEntry(entry.id) ? 
+                    <FButton onClick={() => { void 0; }} selected>Voted</FButton> :
+                    <FButton onClick={() => vote(entry.id)} primary>Vote</FButton>}
+                </div>
+              </div>
+            ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function HotFeed() {
   const { filterNSFW, isAllowed } = useNSFWFilter()
 
@@ -543,6 +639,8 @@ export function HotFeed() {
 
   return (
     <div className="w-full">
+      <LaunchContest />
+      <p className='font-bold text-sm mt-2 mb-2'>Live trades:</p>
       {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
@@ -734,7 +832,7 @@ import { debounce } from "lodash";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { filterBlacklisted, filterBlacklistedWithBlanace, isCABlacklisted } from "~/lib/blacklist";
-import { ClankerCard, ClankerCardGhost } from "./components/ClankerCard";
+import { ClankerCard, ClankerCardGhost, UserCard } from "./components/ClankerCard";
 import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
 import { FSearchInput } from "./components/FInput";
@@ -743,6 +841,9 @@ import { LaunchView } from "./components/LaunchView";
 import { ClankfunLogo } from "./components/Logo";
 import { usePrivy } from '@privy-io/react-auth';
 import { useNSFWFilter } from '~/lib/hooks/useNSFWFilter';
+import { ContestInfo, serverFetchContest, serverVoteForContestEntry } from './server-contest';
+import { useToast } from '~/hooks/use-toast';
+import CountdownTimer from './components/CountdownTimer';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
