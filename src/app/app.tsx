@@ -643,7 +643,6 @@ export function HotFeed() {
   return (
     <div className="w-full">
       <LaunchContest />
-      <p className='font-bold text-sm mt-2 mb-2'>Live trades:</p>
       {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
