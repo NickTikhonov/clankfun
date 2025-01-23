@@ -479,6 +479,8 @@ async function fetchCastsNeynar(hashes: string[]) {
   }
   const neynar = new NeynarAPIClient(env.NEYNAR_API_KEY);
   try {
+    console.log(`Fetching ${hashes.length} casts from Neynar`)
+    console.log("Hashes: ", hashes)
     const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
     return castData
   } catch (e) {
