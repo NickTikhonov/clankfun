@@ -30,20 +30,15 @@ export const CountdownTimer = () => {
 
 const calculateEndTime = () => {
   const now = new Date();
-  return new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-    now.getHours() + 1,
-    0,
-    0
-  );
+  const nextDay = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+  return new Date(nextDay.getFullYear(), nextDay.getMonth(), nextDay.getDate(), 18, 0, 0);
 };
 
 const formatTimeRemaining = (timeRemaining: number) => {
+  const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
   const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
   const seconds = Math.floor((timeRemaining / 1000) % 60);
-  return `${minutes}m ${seconds}s left`;
+  return `${hours}h ${minutes}m ${seconds}s left`;
 };
 
 export default CountdownTimer;

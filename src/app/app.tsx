@@ -517,7 +517,9 @@ function LaunchContest() {
         <div className='w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-2 h-[500px] md:h-[250px]'>
           {contest.winner && (
             <div className='flex flex-col gap-2 flex-grow'>
-              <p className='text-sm font-bold'>Clash of Clankers winner:</p>
+              <WithTooltip text="The winner of the last Clash of Clankers contest. Vote on the next winner to launch a new coin.">
+                <p className='text-sm font-bold'>Clash of Clankers winner:</p>
+              </WithTooltip>
               <ClankerCard
                 c={contest.winner}
                 onSelect={() => void 0 }
@@ -527,30 +529,42 @@ function LaunchContest() {
           )}
           <div className='flex flex-col gap-2'>
             <div className='flex flex-row gap-2 text-sm'>
-              <p className='text-sm font-bold'>Pick the next winner: </p>
+              <p className='text-sm font-bold'>Vote for the next launch: </p>
               <CountdownTimer />
             </div>
             <div className='flex flex-col gap-2 overflow-scroll h-[200px]'>
-            {[...contest.entries].map((entry, i) => (
-              <div key={i} className='flex items-center gap-2'>
-                <div className=''>
-                  {entry.img_url ? 
-                    <img src={entry.img_url ?? ""} alt={entry.name} className='w-20 h-20 rounded-lg object-cover' /> :
-                    <div className='w-20 h-20 rounded-lg bg-purple-500' />
-                  }
+              {contest.entries.length === 0 && (
+                <div className='w-full h-[40px] grid place-items-center text-sm'>
+                  No entries yet
                 </div>
-                <div className='flex flex-col'>
-                  <p className='text-sm font-bold'>{entry.name}</p>
-                  <p className='text-sm text-white/70'>Votes: {entry.votes.length}</p>
-                  <UserCard c={{creator: entry.ownerAddress} as ClankerWithData} />
+              )}
+              {[...contest.entries].map((entry, i) => (
+                <div key={i} className='flex items-center gap-2'>
+                  <div className=''>
+                    {entry.img_url ? 
+                      <img src={entry.img_url ?? ""} alt={entry.name} className='w-20 h-20 rounded-lg object-cover' /> :
+                      <div className='w-20 h-20 rounded-lg bg-purple-500' />
+                    }
+                  </div>
+                  <div className='flex flex-col'>
+                    <p className='text-sm font-bold'>{entry.name}</p>
+                    <p className='text-xs text-white/70'>${entry.symbol}</p>
+                    <p className='text-xs text-white/70'>Votes: {entry.votes.length}</p>
+                    <UserCard c={{creator: entry.ownerAddress} as ClankerWithData} />
+                  </div>
+                  <div className='flex-grow flex items-end justify-center'>
+                    {votedForEntry(entry.id) ? 
+                      <FButton onClick={() => { void 0; }} selected>Voted</FButton> :
+                      <FButton onClick={() => vote(entry.id)} primary>Vote</FButton>}
+                  </div>
                 </div>
-                <div className='flex-grow flex items-end justify-center'>
-                  {votedForEntry(entry.id) ? 
-                    <FButton onClick={() => { void 0; }} selected>Voted</FButton> :
-                    <FButton onClick={() => vote(entry.id)} primary>Vote</FButton>}
+              ))}
+              <a href="/launch" className='w-full rounded-md border-white/10 border grid place-items-center'>
+                <div className='flex gap-2 p-4 items-center justify-center'>
+                  <Rocket size={12} />
+                  <p className='text-sm'>Submit new clanker</p>
                 </div>
-              </div>
-            ))}
+              </a>
             </div>
           </div>
         </div>
@@ -832,7 +846,7 @@ export default function ClankerSearch({
   );
 }
 
-import { debounce } from "lodash";
+import { constant, debounce } from "lodash";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { filterBlacklisted, filterBlacklistedWithBlanace, isCABlacklisted } from "~/lib/blacklist";
