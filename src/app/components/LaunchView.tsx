@@ -273,6 +273,9 @@ export function LaunchView() {
         </div>
         <div className="w-full">
           {isContest ? <p>
+            Note: we are still testing this feature (in alpha). No guarantees of any kind that this will work as expected. Turn this off if you want to actually launch a coin! 
+            <br />
+            <br />
             This coin will be entered into Clash of Clankers. Thousands of clank.fun users will be able to vote for their favorite new coin. If your coin gets the most votes by 1pm EST/6pm GMT, it will be launched and will stay on the #1 spot on clank.fun for 24 hours.
             <br />
             <br />
