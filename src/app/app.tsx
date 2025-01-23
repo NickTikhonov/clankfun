@@ -461,10 +461,13 @@ export function TopFeed() {
 }
 
 function LaunchContest() {
-  // Contest stuff
-  const [contest, setContest] = useState<ContestInfo | null>(null)
-  const { getAccessToken, user } = usePrivy()
-  const { toast } = useToast()
+  const sp = useSearchParams();
+
+  const contestSet = sp.has("contest")
+
+  const [contest, setContest] = useState<ContestInfo | null>(null);
+  const { getAccessToken, user } = usePrivy();
+  const { toast } = useToast();
 
   async function fetchContest() {
     const data = await serverFetchContest()
@@ -510,7 +513,7 @@ function LaunchContest() {
 
   return (
     <div className='w-full'>
-      {contest && (
+      {contest && contestSet && (
         <div className='w-full mb-2 grid grid-cols-1 md:grid-cols-2 gap-2 h-[500px] md:h-[250px]'>
           {contest.winner && (
             <div className='flex flex-col gap-2 flex-grow'>
@@ -844,6 +847,7 @@ import { useNSFWFilter } from '~/lib/hooks/useNSFWFilter';
 import { ContestInfo, serverFetchContest, serverVoteForContestEntry } from './server-contest';
 import { useToast } from '~/hooks/use-toast';
 import CountdownTimer from './components/CountdownTimer';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
