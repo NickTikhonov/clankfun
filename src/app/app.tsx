@@ -463,7 +463,7 @@ export function TopFeed() {
 function LaunchContest() {
   const sp = useSearchParams();
 
-  const contestSet = sp.has("contest")
+  const contestSet = true //sp.has("contest")
 
   const [contest, setContest] = useState<ContestInfo | null>(null);
   const { getAccessToken, user } = usePrivy();
