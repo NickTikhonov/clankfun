@@ -7,7 +7,7 @@
 
 import { motion } from 'framer-motion';
 import { ChartAreaIcon, ChartNoAxesColumnIncreasing, Coins, Link2, MessageCircle, Rocket, Share } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { io } from 'socket.io-client';
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "~/components/ui/dialog";
@@ -642,7 +642,9 @@ export function HotFeed() {
 
   return (
     <div className="w-full">
-      <LaunchContest />
+      <Suspense>
+        <LaunchContest />
+      </Suspense>
       {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
