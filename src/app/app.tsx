@@ -559,6 +559,9 @@ function LaunchContest() {
                   </div>
                 </div>
               ))}
+              <p className='text-sm text-white/70'>
+                Vote to pick the clash winner. The winning token will be deployed and will stay on the clank.fun homepage for 24 hours, exposing it to thousands of traders.
+              </p>
               <a href="/launch" className='w-full rounded-md border-white/10 border grid place-items-center'>
                 <div className='flex gap-2 p-4 items-center justify-center'>
                   <Rocket size={12} />
