@@ -26,6 +26,10 @@ export default async function Page({
           src={clanker.img_url ?? ""}
           alt={clanker.name}
           className="w-[50px] h-[50px] object-cover"
+          onClick={() => {
+            // launch clank.fun
+            window.open(`https://clank.fun/t/${clanker.contract_address.toLowerCase()}`, '_blank')
+          }}
         />
       ))}
     </div>
