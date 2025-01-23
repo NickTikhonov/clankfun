@@ -484,7 +484,7 @@ async function fetchCastsNeynar(hashes: string[]) {
     const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
     return castData
   } catch (e) {
-    console.error(e)
+    console.error(JSON.stringify(e, null, 2))
     return []
   }
 }
