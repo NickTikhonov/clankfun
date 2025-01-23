@@ -181,11 +181,13 @@ export async function serverFetchBalance(address?: string) {
   return await getTokenBalance(address)
 }
 
-export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
+export async function serverFetchHotClankers(num?: number): Promise<ClankerWithData[]> {
   const cacheKey = `hotclankers-14`;
-  const cachedResult = await cached(cacheKey);
-  if (cachedResult) {
-    return cachedResult
+  if (num === undefined) {
+    const cachedResult = await cached(cacheKey);
+    if (cachedResult) {
+      return cachedResult
+    }
   }
 
   const updateThreshold = new Date(Date.now() - 1000 * 60 * 60 * 2)
@@ -198,7 +200,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
     orderBy: {
       i_24h_volume: 'desc'
     },
-    take: 20
+    take: num ?? 20
   })
 
   const res: ClankerWithData[] =  dbClankers.map((c) => {
@@ -229,7 +231,9 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
     }
   })
 
-  await cacheSet(cacheKey, res, 60 * 10);
+  if (num === undefined) {
+    await cacheSet(cacheKey, res, 60 * 10);
+  }
   return res
 }
 
