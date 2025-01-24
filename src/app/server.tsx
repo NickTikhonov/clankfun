@@ -182,7 +182,7 @@ export async function serverFetchBalance(address?: string) {
 }
 
 export async function serverFetchHotClankers(num?: number): Promise<ClankerWithData[]> {
-  const cacheKey = `hotclankers-14`;
+  const cacheKey = `hotclankers-15`;
   if (num === undefined) {
     const cachedResult = await cached(cacheKey);
     if (cachedResult) {
