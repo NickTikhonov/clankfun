@@ -24,7 +24,7 @@ model Clanker {
   nsfw             Boolean  @default(false)
 
   i_mcap_usd      Float?
-  i_volume_usd    Float?
+  i_volume_usd    Float? // Unused
   i_trades        Int?
   i_decimals      Int?
   i_price_usd     Float?

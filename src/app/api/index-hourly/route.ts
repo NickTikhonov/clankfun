@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { env } from '~/env';
 import { db } from '~/lib/db';
-import { fetchGraphUniswapBaseData } from '~/lib/index/uniswapGraph';
+import { fetchGeckoAPIBatch } from '~/lib/gecko';
 
 // There is a block every 2 seconds. 
 function blocksAgo(block: number, agoSeconds: number): number {
@@ -45,10 +45,6 @@ export async function POST(request: Request) {
   }
 
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-  const block = await getLatestBlock()
-  const block24hAgo = blocksAgo(block, 24 * 60 * 60)
-
   const toIndex = await db.clanker.findMany({
     where: {
       i_updated_at: {
@@ -57,39 +53,38 @@ export async function POST(request: Request) {
     },
   })
 
-  // Process in batches of 20
+  console.log(`Indexing 24h ${toIndex.length} clankers`);
+
   const batches = [];
-  for (let i = 0; i < toIndex.length; i += 50) {
-    batches.push(toIndex.slice(i, i + 50));
+  for (let i = 0; i < toIndex.length; i += 30) {
+    batches.push(toIndex.slice(i, i + 30));
   }
 
   let i = 0
   for (const batch of batches) {
     console.log(`Processing batch ${i + 1} of ${batches.length}`);
-    const cas = batch.map((c) => c.contract_address.toLowerCase());
-
-    const latest = await fetchGraphUniswapBaseData(cas);
-    const dayAgo = await fetchGraphUniswapBaseData(cas, block24hAgo);
+    const poolAddresses = batch.map((c) => c.pool_address);
+    const poolData = await fetchGeckoAPIBatch(poolAddresses);
 
     const promises = [];
     for (const clanker of batch) {
-      const token = latest.find((t: any) => t.ca === clanker.contract_address);
-      const token24hAgo = dayAgo.find((t: any) => t.ca === clanker.contract_address);
-
-      if (!token || !token24hAgo) {
-        console.log(`No graph data found for ${clanker.contract_address}`);
-        continue
+      const data = poolData.find((p) => p.id === `base_${clanker.pool_address.toLowerCase()}`);
+      if (!data) {
+        console.error(`No data found for 1h index of ${clanker.name}: pool_address(${clanker.pool_address})`);
+        continue;
       }
 
       promises.push((async () => {
+        console.log(`Updating ${clanker.name} - ${clanker.contract_address}`);
         try {
+          const day_volume = parseFloat(data.attributes.volume_usd.h24 ?? "0")
           await db.clanker.update({
             where: {
               contract_address: clanker.contract_address
             },
             data: {
               i_volume_updated_at: new Date(),
-              i_24h_volume: token.volumeUSD - token24hAgo.volumeUSD
+              i_24h_volume: day_volume
             }
           })
         } catch(e) {

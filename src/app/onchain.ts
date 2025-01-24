@@ -13,7 +13,9 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { erc20Abi, getAddress } from 'viem';
 import { CLANKFUN_CA } from './constants';
 import { type DBClanker } from './server';
+
 import V2Token from './abi/ClankerTokenV2.json'
+import V3Token from './abi/ClankerTokenV3.json'
 
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
 const settings = {
@@ -140,6 +142,28 @@ async function fetchTokenDataV0V1(tokenAddress: string, poolAddress: string, eth
       decimals: 0,
       owner: null
     };
+  }
+}
+
+async function fetchTokenOwnerV2(tokenAddress: string): Promise<string> {
+  const tokenContract = new ethers.Contract(tokenAddress, V2Token.abi, provider) as any
+  const deployer = await tokenContract.deployer();
+  return getAddress(deployer)
+}
+
+async function fetchTokenOwnerV3(tokenAddress: string): Promise<string> {
+  const tokenContract = new ethers.Contract(tokenAddress, V3Token.abi, provider) as any
+  const deployer = await tokenContract.deployer();
+  return getAddress(deployer)
+}
+
+export async function fetchTokenOwner(clanker: DBClanker): Promise<string | null> {
+  if (clanker.type === "clanker_v3") {
+    return fetchTokenOwnerV3(clanker.contract_address)
+  } else if (clanker.type === "clanker_v2") {
+    return fetchTokenOwnerV2(clanker.contract_address)
+  } else {
+    return null
   }
 }
 
