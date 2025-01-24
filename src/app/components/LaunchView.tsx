@@ -261,7 +261,7 @@ export function LaunchView() {
             <FImageUpload onImage={setImage} />
           </div>
         </div>: null}
-        <div className="flex items-center space-x-2 w-full">
+        {/* <div className="flex items-center space-x-2 w-full">
           <Switch 
             checked={isContest}
             onCheckedChange={setIsContest}
@@ -270,7 +270,7 @@ export function LaunchView() {
           <Label htmlFor="show-nsfw">
             Enter in Clash of Clankers instead of launching immediately 🚀
           </Label>
-        </div>
+        </div> */}
         <div className="w-full">
           {isContest ? <p>
             Note: we are still testing this feature (in alpha). No guarantees of any kind that this will work as expected. Turn this off if you want to actually launch a coin! 
