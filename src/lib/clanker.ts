@@ -24,6 +24,41 @@ const APIPageSchema = z.object({
   total: z.number(),
 });
 
+function deployerByType(type: string | null) {
+  const _100_b = 100 * 1000 * 1000 * 1000
+  const _1_b = 1 * 1000 * 1000 * 1000
+  switch (type) {
+    case 'clanker_v2':
+      return {
+        maxSupply: _100_b
+      }
+    case 'clanker_v3':
+      return {
+        maxSupply: _100_b
+      }
+    case 'clanker':
+      return {
+        maxSupply: _100_b
+      }
+    case 'proxy':
+      return {
+        maxSupply: _100_b
+      }
+    case 'wow':
+      return {
+        maxSupply: _1_b
+      }
+    case 'g8':
+      return {
+        maxSupply: _1_b
+      }
+    default:
+      return {
+        maxSupply: null
+      }
+  }
+}
+
 export type APIClanker = z.infer<typeof APIClankerSchema>
 export type APIPage = z.infer<typeof APIPageSchema>
 
