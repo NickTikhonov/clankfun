@@ -30,8 +30,9 @@ export const CountdownTimer = () => {
 
 const calculateEndTime = () => {
   const now = new Date();
-  const nextDay = new Date(now.getTime() + (24 * 60 * 60 * 1000));
-  return new Date(nextDay.getFullYear(), nextDay.getMonth(), nextDay.getDate(), 18, 0, 0);
+  const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0, 0);
+  const tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+  return now.getTime() < today.getTime() ? today : tomorrow;
 };
 
 const formatTimeRemaining = (timeRemaining: number) => {
