@@ -3,9 +3,11 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { embueClankers } from '~/app/server';
+import { fetchTokenOwner } from '~/app/onchain';
+import { DBClanker, embueClankers, fetchCastsNeynar } from '~/app/server';
 import { env } from '~/env';
 import { db } from '~/lib/db';
+import { fetchGeckoAPIBatch } from '~/lib/gecko';
 import { fetchGraphUniswapBaseData } from '~/lib/index/uniswapGraph';
 
 /**
@@ -31,12 +33,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: validatedRequestBody.error.issues }, { status: 400 });
   }
 
+  // Start indexing here
   let contractAddresses = validatedRequestBody.data.contractAddresses.map(address => address.toLowerCase());
   contractAddresses = [...new Set(contractAddresses)]; // Deduplicate
 
+  console.log(`Indexing ${contractAddresses.length} clankers`);
+
   const batches = [];
-  for (let i = 0; i < contractAddresses.length; i += 10) {
-    batches.push(contractAddresses.slice(i, i + 10));
+  for (let i = 0; i < contractAddresses.length; i += 30) {
+    batches.push(contractAddresses.slice(i, i + 30));
   }
 
   for (const batch of batches) {
@@ -47,11 +52,10 @@ export async function POST(request: Request) {
 }
 
 async function indexBatch(contractAddresses: string[]) {
-  if (contractAddresses.length === 0) {
-    return
-  }
-  if (contractAddresses.length > 10) { 
-    throw new Error('Too many contract addresses')
+  // Indexes up to 30 tokens
+
+  if (contractAddresses.length === 0 || contractAddresses.length > 30) { 
+    throw new Error('Zero or too many addresses in batch')
   }
   const dbClankers = await db.clanker.findMany({
     where: {
@@ -61,46 +65,71 @@ async function indexBatch(contractAddresses: string[]) {
     }
   })
 
-  const [graphResponse, embued] = await Promise.all([
-    fetchGraphUniswapBaseData(dbClankers.map(c => c.contract_address)),
-    embueClankers(dbClankers)
-  ]);
+  // Fetch pool data from Gecko API
+  async function fetchGeckoData(clankers: DBClanker[]) {
+    const poolAddresses = dbClankers.map(c => c.pool_address);
+    const poolData = await fetchGeckoAPIBatch(poolAddresses);
+    return poolData;
+  }
+
+  async function fetchMissingTokenOwners(clankers: DBClanker[]) {
+    const tokenOwnersMissing = await Promise.all(dbClankers.filter(c => !c.i_owner_address).map(c => ((async () => {
+      const owner = await fetchTokenOwner(c);
+      return {
+        contract_address: c.contract_address,
+        owner
+      }
+    })())))
+    return tokenOwnersMissing;
+  }
+
+  async function fetchMissingCasts(clankers: DBClanker[]) {
+    const hashes = dbClankers.filter(c => (c.cast_hash && c.cast_hash.startsWith('0x') && !c.i_cast)).map(c => c.cast_hash!)
+    return await fetchCastsNeynar(hashes);
+  }
+
+  const [geckoData, missingOwners, casts] = await Promise.all([
+    fetchGeckoData(dbClankers),
+    fetchMissingTokenOwners(dbClankers),
+    fetchMissingCasts(dbClankers)
+  ])
 
   for (const clanker of dbClankers) {
     try {
-      const graphToken = graphResponse.find((t: any) => t.ca === clanker.contract_address);
-      if (!graphToken) {
-        console.log(`No graph data found for ${clanker.contract_address}`);
-        continue
-      }
-      const embuedData = embued.find((c: any) => c.contract_address === clanker.contract_address);
-      if (!embuedData) {
-        console.log(`No embued data found for ${clanker.contract_address}`);
-        continue
-      }
+      console.log(`Indexing clanker ${clanker.name}`);
+      const cast = casts.find(c => c.hash === clanker.cast_hash);
+      const poolData = geckoData.find(d => d.id === `base_${clanker.pool_address.toLowerCase()}`);
+      const ownerData = missingOwners.find(o => o.contract_address === clanker.contract_address);
 
-      let ownerAddress = null
-      if (embuedData.creator) {
-        ownerAddress = embuedData.creator
-      } else if (embuedData.cast?.author.verified_addresses?.eth_addresses && embuedData.cast.author.verified_addresses.eth_addresses.length > 0) {
-        ownerAddress = embuedData.cast.author.verified_addresses.eth_addresses[0]
-      }
+      const priceUsd = parseFloat(poolData?.attributes.base_token_price_usd ?? '0');
+      const mcapUsd = parseFloat(poolData?.attributes.market_cap_usd ?? '0');
+      const hourTrades = (poolData?.attributes.transactions.h1.buys ?? 0) + (poolData?.attributes.transactions.h1.sells ?? 0);
 
       await db.clanker.update({
         where: {
           id: clanker.id
         },
         data: {
-          i_price_usd: embuedData.priceUsd > 0 ? embuedData.priceUsd : undefined, // If price or market cap is 0, don't update
-          i_mcap_usd: embuedData.marketCap > 0 ? embuedData.marketCap : undefined,
-          i_volume_usd: graphToken.volumeUSD,
-          i_trades: graphToken.txCount,
-          i_decimals: graphToken.decimals,
-          i_rewards_usd: embuedData.rewardsUSD,
-          i_cast: embuedData.cast ? JSON.stringify(embuedData.cast) : null,
-          i_owner_address: ownerAddress,
+          i_price_usd: priceUsd,
+          i_mcap_usd: mcapUsd,
+          i_volume_usd: 0,
+          i_trades: hourTrades,
+          i_decimals: 18,
+          i_cast: cast ? JSON.stringify(cast) : undefined,
+          i_owner_address: ownerData ? ownerData.owner : undefined,
           i_updated_at: new Date(),
         }
+      })
+
+      console.log(`Updating data for ${clanker.name}`, {
+        i_price_usd: priceUsd,
+        i_mcap_usd: mcapUsd,
+        i_volume_usd: 0,
+        i_trades: hourTrades,
+        i_decimals: 18,
+        i_cast: cast ? JSON.stringify(cast) : undefined,
+        i_owner_address: ownerData ? ownerData.owner : undefined,
+        i_updated_at: new Date(),
       })
     } catch (e: any) {
       console.error(`Error indexing clanker ${clanker.contract_address}: ${e.message}`);

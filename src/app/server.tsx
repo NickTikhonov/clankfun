@@ -472,7 +472,7 @@ export async function fetchParentCast(hash: string) {
   return casts.result.casts[0]
 }
 
-async function fetchCastsNeynar(hashes: string[]) {
+export async function fetchCastsNeynar(hashes: string[]) {
   hashes = hashes.filter(h => isValidCastHash(h))
   if (hashes.length === 0) {
     return []
