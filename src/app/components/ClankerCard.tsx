@@ -145,9 +145,9 @@ export function ClankerCardV3({
                     <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#41ccff]">
                       ${formatPrice(c.marketCap)}
                     </div>
-                    {/* <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#29d974]">
-                      +%2
-                    </div> */}
+                    {c.priceDiff1h && <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[${c.priceDiff1h > 0 ? "#29d974" : "#ff693c"}]`}>
+                      {c.priceDiff1h > 0 ? `+${(c.priceDiff1h).toFixed(2)}%` : `-${Math.abs(c.priceDiff1h).toFixed(2)}%`}
+                    </div>}
                   </div>
                 </div>
                 {c.volume24h && <div className="flex w-full flex-col items-start justify-start gap-1.5">

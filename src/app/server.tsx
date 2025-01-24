@@ -62,6 +62,7 @@ export type Clanker = z.infer<typeof ClankerSchema>
 
 type ClankerMarketData = {
   marketCap: number, 
+  priceDiff1h?: number,
   volume24h?: number,
   decimals: number,
   priceUsd: number,
@@ -89,6 +90,7 @@ export type DBClanker = {
   nsfw: boolean;
   i_24h_volume: number | null;
   i_owner_address: string | null;
+  i_price_usd_1h_diff: number | null;
 }
 
 // Deprecated: this is being replaced with the indexer (/api/index)
@@ -227,7 +229,8 @@ export async function serverFetchHotClankers(num?: number): Promise<ClankerWithD
       cast: cast,
       nsfw: c.nsfw,
       creator: c.i_owner_address ?? undefined,
-      volume24h: c.i_24h_volume ?? undefined
+      volume24h: c.i_24h_volume ?? undefined,
+      priceDiff1h: c.i_price_usd_1h_diff ?? undefined
     }
   })
 
@@ -332,7 +335,8 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
     cast: c.i_cast ? JSON.parse(c.i_cast) : null,
     nsfw: c.nsfw,
     creator: c.i_owner_address ?? undefined,
-    volume24h: c.i_24h_volume ?? undefined
+    volume24h: c.i_24h_volume ?? undefined,
+    priceDiff1h: c.i_price_usd_1h_diff ?? undefined
   }
 }
 

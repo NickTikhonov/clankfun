@@ -102,7 +102,9 @@ async function indexBatch(contractAddresses: string[]) {
       const ownerData = missingOwners.find(o => o.contract_address === clanker.contract_address);
 
       const priceUsd = parseFloat(poolData?.attributes.base_token_price_usd ?? '0');
+      const priceDiff = parseFloat(poolData?.attributes.price_change_percentage.h1 ?? '0');
       let mcapUsd = parseFloat(poolData?.attributes.market_cap_usd ?? '0');
+      // Coingecko returns null for many smaller market caps. Calculate it based on supply instead.
       if (mcapUsd === 0 && (clanker.type === 'clanker_v2' || clanker.type === 'clanker_v3')) {
         mcapUsd = priceUsd * 100000000000;
       }
@@ -114,6 +116,7 @@ async function indexBatch(contractAddresses: string[]) {
         },
         data: {
           i_price_usd: priceUsd,
+          i_price_usd_1h_diff: priceDiff,
           i_mcap_usd: mcapUsd,
           i_volume_usd: 0,
           i_trades: hourTrades,
