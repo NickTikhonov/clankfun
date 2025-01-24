@@ -410,7 +410,7 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
       }
     },
     orderBy: {
-      i_mcap_usd: 'desc'
+      i_24h_volume: 'desc'
     },
     take: 30
   })
