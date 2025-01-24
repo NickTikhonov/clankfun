@@ -398,7 +398,6 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
 }
 
 export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
-  const updateThreshold = new Date(Date.now() - 1000 * 60 * 60 * 2)
   const launchThreshold = new Date(Date.now() - 1000 * 60 * 60 * 3)
   const dbClankers = await db.clanker.findMany({
     where: {
@@ -406,6 +405,9 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
         gte: launchThreshold
       },
       i_mcap_usd: {
+        gt: 0
+      },
+      i_24h_volume: {
         gt: 0
       }
     },
@@ -440,7 +442,8 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
       cast: cast,
       creator: c.i_owner_address ?? undefined,
       nsfw: c.nsfw,
-      volume24h: c.i_24h_volume ?? undefined
+      volume24h: c.i_24h_volume ?? undefined,
+      priceDiff1h: c.i_price_usd_1h_diff ?? undefined
     }
   })
 
