@@ -102,7 +102,9 @@ async function indexBatch(contractAddresses: string[]) {
       const ownerData = missingOwners.find(o => o.contract_address === clanker.contract_address);
 
       const priceUsd = parseFloat(poolData?.attributes.base_token_price_usd ?? '0');
-      const mcapUsd = parseFloat(poolData?.attributes.market_cap_usd ?? '0');
+      let mcapUsd = parseFloat(poolData?.attributes.market_cap_usd ?? '0');
+      if (mcapUsd === 0 && clanker.type === 'clanker_v2' || clanker.type === 'clanker_v3') {
+        mcapUsd = priceUsd * 100000000000;
       const hourTrades = (poolData?.attributes.transactions.h1.buys ?? 0) + (poolData?.attributes.transactions.h1.sells ?? 0);
 
       await db.clanker.update({

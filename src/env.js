@@ -22,7 +22,8 @@ export const env = createEnv({
     TELEGRAM_API_KEY: z.string(),
     PRIVY_APP_SECRET: z.string(),
     CACHE_DISABLED: z.boolean(),
-    GRAPH_API_KEY: z.string()
+    GRAPH_API_KEY: z.string(),
+    COINGECKO_API_KEY: z.string(),
   },
 
   /**
@@ -60,6 +61,7 @@ export const env = createEnv({
     PRIVY_APP_SECRET: process.env.PRIVY_APP_SECRET,
     CACHE_DISABLED: process.env.CACHE_DISABLED == "true",
     GRAPH_API_KEY: process.env.GRAPH_API_KEY,
+    COINGECKO_API_KEY: process.env.COINGECKO_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
