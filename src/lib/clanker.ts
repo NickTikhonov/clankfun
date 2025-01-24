@@ -81,6 +81,9 @@ export async function getOrScrapeByCa(ca: string) {
       cast_hash: clanker.cast_hash,
       type: clanker.type,
       page: -1,
+      i_mcap_usd: 37000,
+      i_price_usd: 37000 / 100000000000,
+      i_24h_volume: 0,
     },
     update: {},
   });
@@ -124,7 +127,10 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
             pool_address: clanker.pool_address,
             cast_hash: clanker.cast_hash,
             type: clanker.type,
-            page: page
+            page: page,
+            i_mcap_usd: 37000,
+            i_price_usd: 37000 / 100000000000,
+            i_24h_volume: 0,
           }
         })
         return true
