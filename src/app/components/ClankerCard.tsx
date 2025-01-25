@@ -142,8 +142,8 @@ export function ClankerCardV3({
                     Market cap
                   </div>
                   <div className="flex items-start justify-start gap-1">
-                    <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#41ccff]">
-                      ${formatPrice(c.marketCap)}
+                    <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] ${c.marketCap === 0 ? 'text-white/30' : 'text-[#41ccff]'}`}>
+                      {c.marketCap === 0 ? "N/A" : `$${formatPrice(c.marketCap)}`}
                     </div>
                     {c.priceDiff1h ? <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[${c.priceDiff1h > 0 ? "#29d974" : "#ff693c"}]`}>
                       {c.priceDiff1h > 0 ? `+${(c.priceDiff1h).toFixed(2)}%` : `-${Math.abs(c.priceDiff1h).toFixed(2)}%`}
