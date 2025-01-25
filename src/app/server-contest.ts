@@ -5,7 +5,8 @@ import { env } from '~/env';
 import { db } from '~/lib/db';
 import { Redis } from 'ioredis';
 import { PrivyClient } from '@privy-io/server-auth'
-import { type ClankerWithData, serverFetchCAStale } from './server';
+import { serverFetchCAStale } from './server';
+import { type ClankerWithData } from '~/lib/types';
 
 const redis = new Redis(env.REDIS_URL);
 const privy = new PrivyClient(env.NEXT_PUBLIC_PRIVY_APP_ID, env.PRIVY_APP_SECRET)

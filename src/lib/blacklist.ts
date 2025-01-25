@@ -1,4 +1,4 @@
-import { ClankerWithDataAndBalance, type ClankerWithData } from "~/app/server";
+import { ClankerWithData, ClankerWithDataAndBalance } from "./types";
 
 const blacklist = [
   "0x20aea0aa0c44023ecc4da45b15b3747565128945", // Clanker Christmas Hoe

@@ -2,11 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { type ClankerWithData } from "../server";
 import { motion } from "framer-motion";
 import { WithTooltip } from "../components";
 import moment from "moment";
 import { CastCard, CastCardV2, ENSCard } from "./CastCard";
+import { type ClankerWithData } from "~/lib/types";
 
 export function ClankerCard({
   c,

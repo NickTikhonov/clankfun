@@ -4,11 +4,11 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { fetchTokenOwner } from '~/app/onchain';
-import { DBClanker, embueClankers, fetchCastsNeynar } from '~/app/server';
+import { fetchCastsNeynar } from '~/app/server';
 import { env } from '~/env';
 import { db } from '~/lib/db';
 import { fetchGeckoAPIBatch } from '~/lib/gecko';
-import { fetchGraphUniswapBaseData } from '~/lib/index/uniswapGraph';
+import { type DBClanker } from '~/lib/types';
 
 /**
  * Index API

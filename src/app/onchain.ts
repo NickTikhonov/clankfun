@@ -12,10 +12,10 @@ const provider = new ethers.JsonRpcProvider(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOIN
 import { BigNumber } from '@ethersproject/bignumber';
 import { erc20Abi, getAddress } from 'viem';
 import { CLANKFUN_CA } from './constants';
-import { type DBClanker } from './server';
 
 import V2Token from './abi/ClankerTokenV2.json'
 import V3Token from './abi/ClankerTokenV3.json'
+import { DBClanker } from '~/lib/types';
 
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
 const settings = {

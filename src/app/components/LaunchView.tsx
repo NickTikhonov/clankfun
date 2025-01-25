@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { type ClankerWithData } from "../server";
 import { FInput } from "./FInput";
 import { FImageUpload } from "./FImageUpload";
 import { useAccount, useSignMessage } from "wagmi";
@@ -14,6 +13,7 @@ import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
 import { ClankerCard } from "./ClankerCard";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
+import { type ClankerWithData } from "~/lib/types";
 
 export function LaunchView() {
   const { toast } = useToast()

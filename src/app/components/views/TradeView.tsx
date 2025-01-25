@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { type ClankerWithData } from "@/app/server";
 import { motion } from 'framer-motion';
 import { CoinsIcon } from "lucide-react";
 import { WithTooltip } from "../../components";
@@ -15,6 +14,7 @@ import { FInput } from "../FInput";
 import { CastCard } from "../CastCard";
 import { formatPrice } from "~/lib/utils";
 import { UserCard } from "../ClankerCard";
+import { type ClankerWithData } from "~/lib/types";
 
 export function TradeView({
   clanker,

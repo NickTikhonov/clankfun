@@ -19,7 +19,8 @@ import { categorizeAmt } from '~/lib/analytics';
 import { FButton } from "./components/FButton";
 import { FConnectButtonLarge } from './components/FConnectButton';
 import { FFromInput, FToInput } from "./components/FSwapper";
-import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
+import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote } from "./server";
+import { type ClankerWithData } from '~/lib/types';
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;

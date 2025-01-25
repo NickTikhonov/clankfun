@@ -9,7 +9,6 @@ import { env } from '~/env';
 import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 import { fetchMultiPoolMarketCaps, getEthUsdPrice, getTokenBalance } from './onchain';
 
-import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
 import { getQuote, getSwapPrice } from '~/lib/0x';
 import { db } from '~/lib/db';
@@ -17,6 +16,7 @@ import Redis from 'ioredis';
 import { clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 import { isValidCastHash } from './constants';
 import { isCABlacklisted } from '~/lib/blacklist';
+import { type ClankerWithDataAndBalance, type ClankerWithData, type DBClanker } from '~/lib/types';
 
 const redis = new Redis(env.REDIS_URL);
 
@@ -43,55 +43,6 @@ async function cacheSet(key: string, value: any, expirationSeconds: number = CAC
   await redis.set(key, JSON.stringify(value), 'EX', expirationSeconds);
 }
 
-
-const ClankerSchema = z.object({
-  id: z.number(),
-  created_at: z.string(),
-  tx_hash: z.string(),
-  contract_address: z.string(),
-  requestor_fid: z.number(),
-  name: z.string(),
-  symbol: z.string(),
-  img_url: z.string().nullable(),
-  pool_address: z.string(),
-  cast_hash: z.string().nullable(),
-  type: z.string(),
-});
-
-export type Clanker = z.infer<typeof ClankerSchema>
-
-type ClankerMarketData = {
-  marketCap: number, 
-  priceDiff1h?: number,
-  volume24h?: number,
-  decimals: number,
-  priceUsd: number,
-  rewardsUSD?: number,
-  cast: CastWithInteractions | null 
-  creator?: string
-  nsfw: boolean
-}
-
-export type ClankerWithData = Clanker & ClankerMarketData
-
-export type DBClanker = {
-  symbol: string;
-  type: string | null;
-  name: string;
-  id: number;
-  created_at: Date;
-  tx_hash: string;
-  contract_address: string;
-  requestor_fid: number;
-  img_url: string | null;
-  pool_address: string;
-  cast_hash: string | null;
-  page: number;
-  nsfw: boolean;
-  i_24h_volume: number | null;
-  i_owner_address: string | null;
-  i_price_usd_1h_diff: number | null;
-}
 
 // Deprecated: this is being replaced with the indexer (/api/index)
 export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
@@ -148,8 +99,6 @@ export async function serverFetchSwapPrice(userAddress: string, tokenAddress: st
 export async function serverEthUSDPrice() {
   return getEthUsdPrice()
 }
-
-export type ClankerWithDataAndBalance = ClankerWithData & { balance: number }
 
 export async function serverFetchPortfolio(address: string): Promise<ClankerWithDataAndBalance[]> {
   const DUST_THRESHOLD = 0.0001

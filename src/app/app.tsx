@@ -12,7 +12,7 @@ import { io } from 'socket.io-client';
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "~/components/ui/dialog";
 import { WithTooltip } from "./components";
-import { type ClankerWithData, type ClankerWithDataAndBalance, serverFetchBalance, serverFetchCA, serverFetchCAStale, serverFetchHotClankers, serverFetchLatest3hVolume, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { serverFetchBalance, serverFetchCA, serverFetchCAStale, serverFetchHotClankers, serverFetchLatest3hVolume, serverFetchLatestClankers, serverFetchNativeCoin, serverFetchPortfolio, serverFetchTopClankers, serverSearchClankers } from "./server";
 
 type NavPage = "latest" | "hot" | "top" | "search" | "launch" | "detail" | "portfolio"
 
@@ -862,10 +862,11 @@ import { LaunchView } from "./components/LaunchView";
 import { ClankfunLogo } from "./components/Logo";
 import { usePrivy } from '@privy-io/react-auth';
 import { useNSFWFilter } from '~/lib/hooks/useNSFWFilter';
-import { ContestInfo, serverFetchContest, serverVoteForContestEntry } from './server-contest';
+import { type ContestInfo, serverFetchContest, serverVoteForContestEntry } from './server-contest';
 import { useToast } from '~/hooks/use-toast';
 import CountdownTimer from './components/CountdownTimer';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { ClankerWithDataAndBalance, type ClankerWithData } from '~/lib/types';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

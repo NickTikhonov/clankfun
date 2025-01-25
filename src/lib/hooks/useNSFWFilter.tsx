@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { type ClankerWithData } from '~/app/server';
+import { type ClankerWithData } from '../types';
 
 export const useNSFWFilter = () => {
   const [showNSFW, setShowNSFW] = useState(false);
