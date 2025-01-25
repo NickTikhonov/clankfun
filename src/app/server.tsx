@@ -16,7 +16,7 @@ import Redis from 'ioredis';
 import { clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 import { isValidCastHash } from './constants';
 import { isCABlacklisted } from '~/lib/blacklist';
-import { type ClankerWithDataAndBalance, type ClankerWithData, type DBClanker } from '~/lib/types';
+import { type UIClankerAndBalance, type UIClanker, type DBClanker, dbToUIClanker } from '~/lib/types';
 
 const redis = new Redis(env.REDIS_URL);
 
@@ -45,7 +45,7 @@ async function cacheSet(key: string, value: any, expirationSeconds: number = CAC
 
 
 // Deprecated: this is being replaced with the indexer (/api/index)
-export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> {
+export async function fetchLiveAPIData(c: DBClanker[]): Promise<UIClanker[]> {
   c = c.filter(d => isCABlacklisted(d.contract_address) === false)
   if (c.length === 0) {
     return []
@@ -60,7 +60,7 @@ export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> 
     clankerRewardsUSDAPIBatched(poolAddresses)
   ])
 
-  const res = c.map((clanker, i) => {
+  const res: UIClanker[] = c.map((clanker, i) => {
     return {
       id: clanker.id,
       created_at: clanker.created_at.toString(),
@@ -80,7 +80,8 @@ export async function embueClankers(c: DBClanker[]): Promise<ClankerWithData[]> 
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null,
       creator: mcaps[clanker.pool_address]?.owner ?? undefined,
       nsfw: clanker.nsfw,
-      volume24h: clanker.i_24h_volume ?? undefined
+      volume24h: clanker.i_24h_volume ?? 0,
+      priceDiff1h: 0,
     }
   })
   return res
@@ -100,7 +101,7 @@ export async function serverEthUSDPrice() {
   return getEthUsdPrice()
 }
 
-export async function serverFetchPortfolio(address: string): Promise<ClankerWithDataAndBalance[]> {
+export async function serverFetchPortfolio(address: string): Promise<UIClankerAndBalance[]> {
   const DUST_THRESHOLD = 0.0001
 
   const balances = await getTokenBalance(address)
@@ -117,7 +118,7 @@ export async function serverFetchPortfolio(address: string): Promise<ClankerWith
     }
   })
 
-  const embued = await embueClankers(dbClankers)
+  const embued = dbClankers.map(dbToUIClanker)
   return embued
     .map((c) => ({ ...c, balance: balances[c.contract_address] ?? 0 }))
     .sort((a, b) => { 
@@ -132,7 +133,7 @@ export async function serverFetchBalance(address?: string) {
   return await getTokenBalance(address)
 }
 
-export async function serverFetchHotClankers(num?: number): Promise<ClankerWithData[]> {
+export async function serverFetchHotClankers(num?: number): Promise<UIClanker[]> {
   const cacheKey = `hotclankers-15`;
   if (num === undefined) {
     const cachedResult = await cached(cacheKey);
@@ -154,42 +155,14 @@ export async function serverFetchHotClankers(num?: number): Promise<ClankerWithD
     take: num ?? 20
   })
 
-  const res: ClankerWithData[] =  dbClankers.map((c) => {
-    let cast: CastWithInteractions | null = null
-    if (c.i_cast !== null) {
-      cast = JSON.parse(c.i_cast)
-    }
-    return {
-      id: c.id,
-      created_at: c.created_at.toString(),
-      tx_hash: c.tx_hash,
-      contract_address: c.contract_address,
-      requestor_fid: c.requestor_fid,
-      name: c.name,
-      symbol: c.symbol,
-      img_url: c.img_url,
-      pool_address: c.pool_address,
-      cast_hash: c.cast_hash,
-      type: c.type ?? "unknown",
-      marketCap: c.i_mcap_usd ?? 0,
-      priceUsd: c.i_price_usd ?? 0,
-      rewardsUSD: c.i_rewards_usd ?? 0,
-      decimals: c.i_decimals ?? 18,
-      cast: cast,
-      nsfw: c.nsfw,
-      creator: c.i_owner_address ?? undefined,
-      volume24h: c.i_24h_volume ?? undefined,
-      priceDiff1h: c.i_price_usd_1h_diff ?? undefined
-    }
-  })
-
+  const res: UIClanker[] =  dbClankers.map(dbToUIClanker)
   if (num === undefined) {
     await cacheSet(cacheKey, res, 60 * 10);
   }
   return res
 }
 
-export async function serverSearchClankers(query: string): Promise<ClankerWithData[]> {
+export async function serverSearchClankers(query: string): Promise<UIClanker[]> {
   query = query.trim()
   const dbClankers = await db.clanker.findMany({
     where: {
@@ -221,17 +194,17 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
     return []
   }
 
-  const out = await embueClankers(dbClankers)
-  out.sort((a, b) => b.marketCap - a.marketCap)
+  const out = dbClankers.map(dbToUIClanker)
+  out.sort((a, b) => b.volume24h - a.volume24h)
   return out
 }
 
-export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
+export async function serverFetchNativeCoin(): Promise<UIClanker> {
   const ca = "0x1d008f50fb828ef9debbbeae1b71fffe929bf317"
   return await serverFetchCAStale(ca)
 }
 
-export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
+export async function serverFetchCA(ca: string): Promise<UIClanker> {
   ca = ca.toLowerCase()
   const cacheKey = `clanker:${ca}`;
   const cachedResult = await cached(cacheKey);
@@ -246,15 +219,15 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   if (!clanker) {
     throw new Error("CA not found in database")
   }
-  const embued = await embueClankers([clanker])
-  if (embued.length !== 1) {
+  const liveClankers = await fetchLiveAPIData([clanker])
+  if (liveClankers.length !== 1) {
     throw new Error("Failed to fetch clanker data")
   }
-  await cacheSet(cacheKey, embued[0]!, CACHE_EXPIRATION_SECONDS);
-  return embued[0]!
+  await cacheSet(cacheKey, liveClankers[0]!, CACHE_EXPIRATION_SECONDS);
+  return liveClankers[0]!
 }
 
-export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
+export async function serverFetchCAStale(ca: string): Promise<UIClanker> {
   ca = ca.toLowerCase().trim()
   const c = await db.clanker.findFirst({
     where: {
@@ -265,31 +238,10 @@ export async function serverFetchCAStale(ca: string): Promise<ClankerWithData> {
   if (!c) {
     throw new Error(`Clanker not found: ${ca}`)
   }
-  return {
-    id: c.id,
-    created_at: c.created_at.toString(),
-    tx_hash: c.tx_hash,
-    contract_address: c.contract_address,
-    requestor_fid: c.requestor_fid,
-    name: c.name,
-    symbol: c.symbol,
-    img_url: c.img_url,
-    pool_address: c.pool_address,
-    cast_hash: c.cast_hash,
-    type: c.type ?? "unknown",
-    marketCap: c.i_mcap_usd ?? 0,
-    priceUsd: c.i_price_usd ?? 0,
-    rewardsUSD: c.i_rewards_usd ?? 0,
-    decimals: c.i_decimals ?? 18,
-    cast: c.i_cast ? JSON.parse(c.i_cast) : null,
-    nsfw: c.nsfw,
-    creator: c.i_owner_address ?? undefined,
-    volume24h: c.i_24h_volume ?? undefined,
-    priceDiff1h: c.i_price_usd_1h_diff ?? undefined
-  }
+  return dbToUIClanker(c)
 }
 
-export async function serverFetchTopClankers(clankfun?: boolean): Promise<ClankerWithData[]> {
+export async function serverFetchTopClankers(clankfun?: boolean): Promise<UIClanker[]> {
   const cacheKey = clankfun ? `topclankers-cf-14` : `topclankers-14`;
   const cachedResult = await cached(cacheKey);
   if (cachedResult) {
@@ -314,39 +266,13 @@ export async function serverFetchTopClankers(clankfun?: boolean): Promise<Clanke
     take: 20
   })
 
-  const res: ClankerWithData[] =  dbClankers.map((c) => {
-    let cast: CastWithInteractions | null = null
-    if (c.i_cast !== null) {
-      cast = JSON.parse(c.i_cast)
-    }
-    return {
-      id: c.id,
-      created_at: c.created_at.toString(),
-      tx_hash: c.tx_hash,
-      contract_address: c.contract_address,
-      requestor_fid: c.requestor_fid,
-      name: c.name,
-      symbol: c.symbol,
-      img_url: c.img_url,
-      pool_address: c.pool_address,
-      cast_hash: c.cast_hash,
-      type: c.type ?? "unknown",
-      marketCap: c.i_mcap_usd ?? 0,
-      priceUsd: c.i_price_usd ?? 0,
-      rewardsUSD: c.i_rewards_usd ?? 0,
-      decimals: c.i_decimals ?? 18,
-      cast: cast,
-      creator: c.i_owner_address ?? undefined,
-      nsfw: c.nsfw,
-      volume24h: c.i_24h_volume ?? undefined
-    }
-  })
+  const res: UIClanker[] =  dbClankers.map(dbToUIClanker)
 
   await cacheSet(cacheKey, res, 60 * 10);
   return res
 }
 
-export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
+export async function serverFetchLatest3hVolume(): Promise<UIClanker[]> {
   const launchThreshold = new Date(Date.now() - 1000 * 60 * 60 * 3)
   const dbClankers = await db.clanker.findMany({
     where: {
@@ -367,39 +293,12 @@ export async function serverFetchLatest3hVolume(): Promise<ClankerWithData[]> {
   })
   console.log(`Found ${dbClankers.length} clankers with updated volume in the last 3 hours`)
 
-  const res: ClankerWithData[] =  dbClankers.map((c) => {
-    let cast: CastWithInteractions | null = null
-    if (c.i_cast !== null) {
-      cast = JSON.parse(c.i_cast)
-    }
-    return {
-      id: c.id,
-      created_at: c.created_at.toString(),
-      tx_hash: c.tx_hash,
-      contract_address: c.contract_address,
-      requestor_fid: c.requestor_fid,
-      name: c.name,
-      symbol: c.symbol,
-      img_url: c.img_url,
-      pool_address: c.pool_address,
-      cast_hash: c.cast_hash,
-      type: c.type ?? "unknown",
-      marketCap: c.i_mcap_usd ?? 0,
-      priceUsd: c.i_price_usd ?? 0,
-      rewardsUSD: c.i_rewards_usd ?? 0,
-      decimals: c.i_decimals ?? 18,
-      cast: cast,
-      creator: c.i_owner_address ?? undefined,
-      nsfw: c.nsfw,
-      volume24h: c.i_24h_volume ?? undefined,
-      priceDiff1h: c.i_price_usd_1h_diff ?? undefined
-    }
-  })
+  const res: UIClanker[] =  dbClankers.map(dbToUIClanker)
 
   return res
 }
 
-export async function serverFetchLatestClankers(cursor?: number): Promise<{ data: ClankerWithData[], nextCursor?: number }> {
+export async function serverFetchLatestClankers(cursor?: number): Promise<{ data: UIClanker[], nextCursor?: number }> {
   const PAGE_SIZE = 12
   const clankers = await db.clanker.findMany({
     take: PAGE_SIZE,
@@ -412,7 +311,7 @@ export async function serverFetchLatestClankers(cursor?: number): Promise<{ data
 
   const nextCursor = clankers.length === PAGE_SIZE ? clankers[clankers.length - 1]!.id : undefined;
 
-  const out = await embueClankers(clankers)
+  const out = clankers.map(dbToUIClanker)
   return {
     data: out,
     nextCursor,

@@ -6,7 +6,7 @@ import { db } from '~/lib/db';
 import { Redis } from 'ioredis';
 import { PrivyClient } from '@privy-io/server-auth'
 import { serverFetchCAStale } from './server';
-import { type ClankerWithData } from '~/lib/types';
+import { type UIClanker } from '~/lib/types';
 
 const redis = new Redis(env.REDIS_URL);
 const privy = new PrivyClient(env.NEXT_PUBLIC_PRIVY_APP_ID, env.PRIVY_APP_SECRET)
@@ -29,7 +29,7 @@ type ContestEntry = {
 
 export type ContestInfo = {
   entries: ContestEntry[]
-  winner: ClankerWithData | null
+  winner: UIClanker | null
 }
 
 export async function serverVoteForContestEntry(entryId: string, authToken: string): Promise<boolean> {
@@ -80,7 +80,7 @@ export async function serverFetchContest(): Promise<ContestInfo> {
     }
   })
 
-  let winner: ClankerWithData | null = null
+  let winner: UIClanker | null = null
   if (lastLaunchedCa) {
     try {
       winner = await serverFetchCAStale(lastLaunchedCa.toLowerCase())

@@ -13,7 +13,7 @@ import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
 import { ClankerCard } from "./ClankerCard";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
-import { type ClankerWithData } from "~/lib/types";
+import { type UIClanker } from "~/lib/types";
 
 export function LaunchView() {
   const { toast } = useToast()
@@ -186,7 +186,7 @@ export function LaunchView() {
     decimals: 6,
     priceUsd: 0,
     cast: null
-  } as ClankerWithData
+  } as UIClanker
 
   const hasBalance = balance && required && balance >= required
   const noBalance = (balance !== null) && required && balance < required

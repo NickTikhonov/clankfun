@@ -14,13 +14,13 @@ import { FInput } from "../FInput";
 import { CastCard } from "../CastCard";
 import { formatPrice } from "~/lib/utils";
 import { UserCard } from "../ClankerCard";
-import { type ClankerWithData } from "~/lib/types";
+import { type UIClanker } from "~/lib/types";
 
 export function TradeView({
   clanker,
   referrer
 }: {
-  clanker: ClankerWithData
+  clanker: UIClanker
   referrer: Referral | null
 }) {
   const { toast } = useToast()

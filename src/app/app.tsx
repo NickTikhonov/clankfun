@@ -84,7 +84,7 @@ export function App({
 }
 
 function ClankfunShill() {
-  const [data, setData] = useState<ClankerWithData | null>(null)
+  const [data, setData] = useState<UIClanker | null>(null)
 
   useEffect(() => {
     async function fetchClankfun() {
@@ -137,10 +137,10 @@ function ClankfunShill() {
 
 function SearchResults({ query }: { query: string }) {
   const { filterNSFW } = useNSFWFilter()
-  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [clankers, setClankers] = useState<UIClanker[]>([]);
   const [searching, setSearching] = useState(false);
 
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [detailClanker, setDetailClanker] = useState<UIClanker | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
   useEffect(() => {
@@ -155,7 +155,7 @@ function SearchResults({ query }: { query: string }) {
     void fetchClankers();
   }, [query]);
 
-  function onApe(clanker: ClankerWithData, eth: number) {
+  function onApe(clanker: UIClanker, eth: number) {
     setApeAmount(eth)
     setDetailClanker(clanker)
   }
@@ -206,12 +206,12 @@ function SearchResults({ query }: { query: string }) {
 export function LatestFeed() {
   const { filterNSFW } = useNSFWFilter()
 
-  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [clankers, setClankers] = useState<UIClanker[]>([]);
   const [view, setView] = useState<"latest" | "1hvolume">("1hvolume")
   const [refreshing, setRefreshing] = useState(false);
   const [nextCursor, setNextCursor] = useState<number | undefined>(1);
 
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [detailClanker, setDetailClanker] = useState<UIClanker | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
   useEffect(() => {
@@ -247,7 +247,7 @@ export function LatestFeed() {
     setClankers((prevClankers) => mergeFront(prevClankers, res.data));
   }
 
-  function mergeFront(clankers: ClankerWithData[], newClankers: ClankerWithData[]) {
+  function mergeFront(clankers: UIClanker[], newClankers: UIClanker[]) {
     return newClankers.concat(clankers.filter(c => !newClankers.find(nc => nc.contract_address === c.contract_address)))
   }
 
@@ -262,7 +262,7 @@ export function LatestFeed() {
     setRefreshing(false)
   }
 
-  function onApe(clanker: ClankerWithData, eth: number) {
+  function onApe(clanker: UIClanker, eth: number) {
     setApeAmount(eth)
     setDetailClanker(clanker)
   }
@@ -339,8 +339,8 @@ export function LatestFeed() {
 }
 
 export function Portfolio() {
-  const [clankers, setClankers] = useState<ClankerWithDataAndBalance[]>([]);
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [clankers, setClankers] = useState<UIClankerAndBalance[]>([]);
+  const [detailClanker, setDetailClanker] = useState<UIClanker | null>(null)
   const [refreshing, setRefreshing] = useState(false);
   const { address } = useAccount()
 
@@ -386,11 +386,11 @@ export function Portfolio() {
 export function TopFeed() {
   const { filterNSFW } = useNSFWFilter()
 
-  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [clankers, setClankers] = useState<UIClanker[]>([]);
   const [view, setView] = useState<"all" | "clankfun">("all")
   const [refreshing, setRefreshing] = useState(false);
 
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [detailClanker, setDetailClanker] = useState<UIClanker | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
   const { address } = useAccount()
@@ -550,7 +550,7 @@ function LaunchContest() {
                     <p className='text-sm font-bold'>{entry.name}</p>
                     <p className='text-xs text-white/70'>${entry.symbol}</p>
                     <p className='text-xs text-white/70'>Votes: {entry.votes.length}</p>
-                    <UserCard c={{creator: entry.ownerAddress} as ClankerWithData} />
+                    <UserCard c={{creator: entry.ownerAddress} as UIClanker} />
                   </div>
                   <div className='flex-grow flex items-end justify-center'>
                     {votedForEntry(entry.id) ? 
@@ -580,11 +580,11 @@ export function HotFeed() {
   const { filterNSFW, isAllowed } = useNSFWFilter()
 
   const [isHover, setHover] = useState<boolean>(false);
-  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
-  const [dispClankers, setDispClankers] = useState<ClankerWithData[]>([]);
+  const [clankers, setClankers] = useState<UIClanker[]>([]);
+  const [dispClankers, setDispClankers] = useState<UIClanker[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [detailClanker, setDetailClanker] = useState<UIClanker | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
   const { address } = useAccount()
@@ -866,7 +866,7 @@ import { type ContestInfo, serverFetchContest, serverVoteForContestEntry } from 
 import { useToast } from '~/hooks/use-toast';
 import CountdownTimer from './components/CountdownTimer';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ClankerWithDataAndBalance, type ClankerWithData } from '~/lib/types';
+import { UIClankerAndBalance, type UIClanker } from '~/lib/types';
 
 function Explainer({ refreshing }: { refreshing: boolean }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

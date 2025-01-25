@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { type ClankerWithData } from '../types';
+import { type UIClanker } from '../types';
 
 export const useNSFWFilter = () => {
   const [showNSFW, setShowNSFW] = useState(false);
@@ -17,7 +17,7 @@ export const useNSFWFilter = () => {
     }
   };
 
-  const filterNSFW = (items: ClankerWithData[]) => {
+  const filterNSFW = (items: UIClanker[]) => {
     if (!showNSFW) {
       const nsfwItems = items.filter((item) => item.nsfw);
       console.log("Removing NSFW items: ", nsfwItems.map((i) => i.name).join(", "));

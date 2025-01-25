@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { WithTooltip } from "../components";
 import moment from "moment";
 import { CastCard, CastCardV2, ENSCard } from "./CastCard";
-import { type ClankerWithData } from "~/lib/types";
+import { type UIClanker } from "~/lib/types";
 
 export function ClankerCard({
   c,
@@ -16,7 +16,7 @@ export function ClankerCard({
   withoutCast,
   noLink = false,
 }: {
-  c: ClankerWithData;
+  c: UIClanker;
   onSelect?: () => void;
   balance?: number;
   onHover?: (isHovered: boolean) => void;
@@ -43,7 +43,7 @@ export function ClankerCardV3({
   withoutCast,
   noLink = false,
 }: {
-  c: ClankerWithData;
+  c: UIClanker;
   onSelect?: () => void;
   balance?: number;
   onHover?: (isHovered: boolean) => void;
@@ -185,7 +185,7 @@ export function ClankerCardV2({
   withoutCast,
   noLink = false,
 }: {
-  c: ClankerWithData;
+  c: UIClanker;
   onSelect?: () => void;
   balance?: number;
   onHover?: (isHovered: boolean) => void;
@@ -371,7 +371,7 @@ export function ClankerCardV2({
   );
 }
 
-export function UserCard({ c }: { c: ClankerWithData }) {
+export function UserCard({ c }: { c: UIClanker }) {
   if (c.cast)
     return (
       <a

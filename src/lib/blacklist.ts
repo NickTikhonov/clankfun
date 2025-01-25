@@ -1,4 +1,4 @@
-import { ClankerWithData, ClankerWithDataAndBalance } from "./types";
+import { UIClanker, UIClankerAndBalance } from "./types";
 
 const blacklist = [
   "0x20aea0aa0c44023ecc4da45b15b3747565128945", // Clanker Christmas Hoe
@@ -12,11 +12,11 @@ const blacklist = [
   // "0x075b25fae35b121b5295b7fa779e73094b2e9153", // Temp NSFW test
 ]
 
-export function filterBlacklisted(clankers: ClankerWithData[]): ClankerWithData[] {
+export function filterBlacklisted(clankers: UIClanker[]): UIClanker[] {
   return clankers.filter((clanker) => !blacklist.includes(clanker.contract_address));
 }
 
-export function filterBlacklistedWithBlanace(clankers: ClankerWithDataAndBalance[]): ClankerWithDataAndBalance[] {
+export function filterBlacklistedWithBlanace(clankers: UIClankerAndBalance[]): UIClankerAndBalance[] {
   return clankers.filter((clanker) => !blacklist.includes(clanker.contract_address));
 }
 

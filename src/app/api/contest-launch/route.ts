@@ -5,7 +5,7 @@ import axios from 'axios';
 import Redis from 'ioredis';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { embueClankers } from '~/app/server';
+import { fetchLiveAPIData } from '~/app/server';
 import { env } from '~/env';
 import { db } from '~/lib/db';
 import { fetchGraphUniswapBaseData } from '~/lib/index/uniswapGraph';

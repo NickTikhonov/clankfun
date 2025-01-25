@@ -20,7 +20,7 @@ import { FButton } from "./components/FButton";
 import { FConnectButtonLarge } from './components/FConnectButton';
 import { FFromInput, FToInput } from "./components/FSwapper";
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote } from "./server";
-import { type ClankerWithData } from '~/lib/types';
+import { type UIClanker } from '~/lib/types';
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -55,7 +55,7 @@ export function SwapInterface({
   onAped,
   refAddress
 }: { 
-  clanker: ClankerWithData, 
+  clanker: UIClanker, 
   apeAmount: number | null 
   onSwapComplete: () => void
   onAped: () => void

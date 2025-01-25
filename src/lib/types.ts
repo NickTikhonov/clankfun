@@ -33,7 +33,7 @@ export type DBClanker = {
 }
 
 // The type rendered by the client.
-export type ClankerWithData = {
+export type UIClanker = {
   id: number;
   created_at: string;
   tx_hash: string;
@@ -52,11 +52,57 @@ export type ClankerWithData = {
   decimals: number;
   priceUsd: number;
   marketCap: number;
-  priceDiff1h?: number;
-  volume24h?: number;
+  priceDiff1h: number;
+  volume24h: number;
   rewardsUSD?: number;
 }
 
-export type ClankerWithDataAndBalance = ClankerWithData & { balance: number }
+export function dbToUIClanker(c: DBClanker): UIClanker {
+  let cast: CastWithInteractions | null = null
+  if (c.i_cast !== null) {
+    cast = JSON.parse(c.i_cast)
+  }
+
+  let priceDiff = c.i_price_usd_1h_diff;
+  if (priceDiff !== null && c.i_updated_at !== null) {
+    const oneHourAgo = new Date(Date.now() - 1000 * 60 * 60);
+    if (c.i_updated_at < oneHourAgo) {
+      priceDiff = 0;
+    }
+  }
+
+  let volume24h = c.i_24h_volume;
+  if (volume24h !== null && c.i_volume_updated_at !== null) {
+    const halfDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 12);
+    if (c.i_volume_updated_at < halfDayAgo) {
+      volume24h = 0;
+    }
+  }
+
+  return {
+    id: c.id,
+    created_at: c.created_at.toString(),
+    tx_hash: c.tx_hash,
+    contract_address: c.contract_address,
+    requestor_fid: c.requestor_fid,
+    name: c.name,
+    symbol: c.symbol,
+    img_url: c.img_url,
+    pool_address: c.pool_address,
+    cast_hash: c.cast_hash,
+    type: c.type ?? "unknown",
+    marketCap: c.i_mcap_usd ?? 0,
+    priceUsd: c.i_price_usd ?? 0,
+    rewardsUSD: c.i_rewards_usd ?? 0,
+    decimals: c.i_decimals ?? 18,
+    cast: cast,
+    nsfw: c.nsfw,
+    creator: c.i_owner_address ?? undefined,
+    volume24h: volume24h ?? 0,
+    priceDiff1h: priceDiff ?? 0,
+  }
+}
+
+export type UIClankerAndBalance = UIClanker & { balance: number }
 
 
