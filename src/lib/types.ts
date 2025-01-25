@@ -55,6 +55,7 @@ export type UIClanker = {
   priceDiff1h: number;
   volume24h: number;
   rewardsUSD?: number;
+  trades1h?: number;
 }
 
 export function dbToUIClanker(c: DBClanker): UIClanker {
@@ -64,10 +65,12 @@ export function dbToUIClanker(c: DBClanker): UIClanker {
   }
 
   let priceDiff = c.i_price_usd_1h_diff;
+  let trades1h = c.i_trades;
   if (priceDiff !== null && c.i_updated_at !== null) {
     const oneHourAgo = new Date(Date.now() - 1000 * 60 * 60);
     if (c.i_updated_at < oneHourAgo) {
       priceDiff = 0;
+      trades1h = 0;
     }
   }
 
@@ -100,6 +103,7 @@ export function dbToUIClanker(c: DBClanker): UIClanker {
     creator: c.i_owner_address ?? undefined,
     volume24h: volume24h ?? 0,
     priceDiff1h: priceDiff ?? 0,
+    trades1h: trades1h ?? 0,
   }
 }
 

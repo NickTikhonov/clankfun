@@ -7,6 +7,7 @@ import { WithTooltip } from "../components";
 import moment from "moment";
 import { CastCard, CastCardV2, ENSCard } from "./CastCard";
 import { type UIClanker } from "~/lib/types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 
 export function ClankerCard({
   c,
@@ -70,7 +71,7 @@ export function ClankerCardV3({
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}
       whileHover={{
-        rotate: 2,
+        rotate: 1,
         scale: 1.05,
       }}
     >
@@ -136,34 +137,36 @@ export function ClankerCardV3({
                 </div>
               </div>
               {/* Market data */}
-              <div className="flex w-full flex-none items-center justify-start gap-1">
-                <div className="flex w-full flex-col items-start justify-start gap-1.5">
-                  <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-white/60">
-                    Market cap
-                  </div>
-                  <div className="flex items-start justify-start gap-1">
-                    <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] ${c.marketCap === 0 ? 'text-white/30' : 'text-[#41ccff]'}`}>
-                      {c.marketCap === 0 ? "N/A" : `$${formatPrice(c.marketCap)}`}
+              <WithDataTooltip c={c}>
+                <div className="flex w-full flex-none items-center justify-start gap-1">
+                  <div className="flex w-full flex-col items-start justify-start gap-1.5">
+                    <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-white/60">
+                      Market cap
                     </div>
-                    {c.priceDiff1h ? <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[${c.priceDiff1h > 0 ? "#29d974" : "#ff693c"}]`}>
-                      {c.priceDiff1h > 0 ? `+${(c.priceDiff1h).toFixed(2)}%` : `-${Math.abs(c.priceDiff1h).toFixed(2)}%`}
-                    </div> : null}
+                    <div className="flex items-start justify-start gap-1">
+                      <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] ${c.marketCap === 0 ? 'text-white/30' : 'text-[#41ccff]'}`}>
+                        {c.marketCap === 0 ? "N/A" : `$${formatPrice(c.marketCap)}`}
+                      </div>
+                      {c.priceDiff1h ? <div className={`font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[${c.priceDiff1h > 0 ? "#29d974" : "#ff693c"}]`}>
+                        {c.priceDiff1h > 0 ? `+${(c.priceDiff1h).toFixed(2)}%` : `-${Math.abs(c.priceDiff1h).toFixed(2)}%`}
+                      </div> : null}
+                    </div>
                   </div>
+                  {c.volume24h ? <div className="flex w-full flex-col items-start justify-start gap-1.5">
+                    <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-white/60">
+                      24h Volume
+                    </div>
+                    <div className="flex items-start justify-start gap-1">
+                      <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#41ccff]">
+                        ${formatPrice(c.volume24h)}
+                      </div>
+                      {/* <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#ff693c]">
+                        -%1
+                      </div> */}
+                    </div>
+                  </div> : null}
                 </div>
-                {c.volume24h ? <div className="flex w-full flex-col items-start justify-start gap-1.5">
-                  <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-white/60">
-                    24h Volume
-                  </div>
-                  <div className="flex items-start justify-start gap-1">
-                    <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#41ccff]">
-                      ${formatPrice(c.volume24h)}
-                    </div>
-                    {/* <div className="font-['ABC Diatype'] text-[13px] font-normal leading-[13px] text-[#ff693c]">
-                      -%1
-                    </div> */}
-                  </div>
-                </div> : null}
-              </div>
+              </WithDataTooltip>
             </div>
           </div>
           {/* Author data */}
@@ -175,6 +178,36 @@ export function ClankerCardV3({
       </div>
     </motion.a>
   );
+}
+
+function WithDataTooltip({ c, children }: { c: UIClanker, children: React.ReactNode }) {
+  const showTooltip = c.rewardsUSD || c.trades1h;
+
+  if (!showTooltip) {
+    return <>{children}</>;
+  }
+
+  return (
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {children}
+        </TooltipTrigger>
+        <TooltipContent side="top" className="z-[999] -rotate-1">
+          <div className="flex w-[180px] flex-col gap-2 items-center text-xs">
+            {c.rewardsUSD ? <div className="flex w-full justify-between">
+              <p className="font-bold">creator earnings:</p>
+              <p>${formatPrice(c.rewardsUSD)}</p>
+            </div> : null}
+            {c.trades1h ? <div className="flex w-full justify-between">
+              <p className="font-bold"># trades (1h):</p>
+              <p>{c.trades1h}</p>
+            </div> : null}
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }
 
 export function ClankerCardV2({
