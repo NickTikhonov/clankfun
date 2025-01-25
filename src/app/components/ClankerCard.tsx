@@ -126,9 +126,7 @@ export function ClankerCardV3({
                   <div className="font-['ABC Diatype'] truncate text-sm font-normal leading-[14px] text-white/60 mt-[4px]">
                     ${c.symbol}
                   </div>
-                  <div className="font-['ABC Diatype'] flex-none text-right text-[10px] font-normal leading-[10px] text-white/40">
-                    {moment(c.created_at).fromNow()}
-                  </div>
+                  <CardCorner c={c} />
                 </div>
                 <div className="font-['ABC Diatype'] text-lg md:text-[22px] font-normal leading-snug text-white flex">
                   <div className="flex-grow line-clamp-1">
@@ -180,11 +178,50 @@ export function ClankerCardV3({
   );
 }
 
+function CardCorner({ c }: { c: UIClanker }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      className="font-['ABC Diatype'] flex-none text-right text-[10px] font-normal leading-[10px] text-white/40"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {isHovered ? c.type : moment(c.created_at).fromNow()}
+    </div>
+  );
+}
+
 function WithDataTooltip({ c, children }: { c: UIClanker, children: React.ReactNode }) {
-  const showTooltip = c.rewardsUSD ?? c.trades1h;
+  const showTooltip = true
 
   if (!showTooltip) {
     return <>{children}</>;
+  }
+
+  let launchedBy = "Clanker Bot"
+  if (c.cast_hash?.indexOf("clank.fun") == 0) {
+    launchedBy = "clank.fun"
+  } else if (c.cast_hash?.indexOf("bolide") == 0) {
+    launchedBy = "Bolide"
+  } else if (c.cast_hash?.indexOf("clankpad") == 0) {
+    launchedBy = "Clankpad"
+  } else if (c.cast_hash?.indexOf("anon") == 0) {
+    launchedBy = "Anon"
+  } else if (c.cast_hash?.indexOf("native") == 0) {
+    launchedBy = "Native"
+  } else if (c.cast_hash?.indexOf("streamm") == 0) {
+    launchedBy = "Streamm"
+  } else if (c.type == "g8") {
+    launchedBy = "G8Keep"
   }
 
   return (
@@ -203,6 +240,10 @@ function WithDataTooltip({ c, children }: { c: UIClanker, children: React.ReactN
               <p className="font-bold"># trades (1h):</p>
               <p>{c.trades1h}</p>
             </div> : null}
+            <div className="flex w-full justify-between">
+              <p className="font-bold">launched via:</p>
+              <p>{launchedBy}</p>
+            </div>
           </div>
         </TooltipContent>
       </Tooltip>
