@@ -181,7 +181,7 @@ export function ClankerCardV3({
 }
 
 function WithDataTooltip({ c, children }: { c: UIClanker, children: React.ReactNode }) {
-  const showTooltip = c.rewardsUSD || c.trades1h;
+  const showTooltip = c.rewardsUSD ?? c.trades1h;
 
   if (!showTooltip) {
     return <>{children}</>;
